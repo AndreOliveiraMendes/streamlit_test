@@ -14,7 +14,7 @@ def get_tiers(stats, ps, ms):
             i: (stats[i] - ps * combo[i - 1]) // ms for i in range(1, 5)
         }
         possibilities = [
-            list(range(min(mixed_stats_total_tier[i], mixed_stats_total_tier[j]) + 1))
+            list(range(min(7, mixed_stats_total_tier[i], mixed_stats_total_tier[j]) + 1))
             for i, j in combinations(range(1, 5), 2)
         ]
         for possible_tiers in product(*possibilities):
