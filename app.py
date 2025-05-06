@@ -6,7 +6,7 @@ st.title("Small Helper Calculator for MapleStory Bonus Stat")
 
 st.markdown("Insira os valores finais de cada atributo bônus:")
 
-theorical_max = 20
+theorical_max = 20*7
 
 col1, col2 = st.columns(2)
 with col1:
