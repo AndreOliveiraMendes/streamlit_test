@@ -228,11 +228,17 @@ with col2:
 STR, DEX, INT, LUK = 1, 2, 3, 4
 stats = {STR: str_val, DEX: dex_val, INT: int_val, LUK: luk_val}
 
+if not "ps" in st.session_state:
+    st.session_state.ps = 12
+if not "ms" in st.session_state:
+    st.session_state.ms = 7
+
 col3, col4 = st.columns(2)
 with col3:
     ps = st.number_input("Valor de cada Tier Puro (ex: 12)", min_value=1, max_value=20, step=1, key="ps")
 with col4:
     ms = st.number_input("Valor de cada Tier Misto (ex: 7)", min_value=0, max_value=20, step=1, key="ms")
+
 st.number_input("Nível do equipamento (ex: 250)",on_change=atualizar_por_nivel, min_value=0, max_value=300, step=1, key="nivel", help="insira o nivel do equipamento ou deixe 0 se deseja inserir manualmente os valores de referencia dos atributos puro e misto")
 max_groups = st.number_input("Número máximo de grupos distintos de 1 a 4.", min_value=1, max_value=4, value=4)
 if st.button("Calcular Configurações Possíveis"):
