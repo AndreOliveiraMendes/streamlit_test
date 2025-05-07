@@ -1,7 +1,7 @@
 import streamlit as st
 from itertools import product, combinations
 
-st.title("Small Helper Calculator for MapleStory Bonus Stat")
+st.title("Maplestory Helper - Flame Calculator")
 
 st.sidebar.title("Links de Referência e Utilitarios")
 
