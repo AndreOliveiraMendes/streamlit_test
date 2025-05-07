@@ -127,6 +127,7 @@ if st.button("Calcular Configurações Possíveis"):
             opt = count_groups_used(tier)
             st.subheader(f"{i}ª configuração — usa {opt} grupo(s) de flame:")
             values = [t * (ps if idx < 4 else ms) for idx, t in enumerate(tier)]
-            for label, value in zip(pair_labels, values):
+            for label, value, t in zip(pair_labels, values, tier):
                 if value > 0:
-                    st.write(f"({'MISTO' if '/' in label else 'PURO'}) **{label}**: {value}")
+                    st.write(f"({'MISTO' if '/' in label else 'PURO'}) **{label}**: {value} (tier {t})")
+                    #st.markdown(f"""**({'MISTO' if '/' in label else 'PURO'})** <abbr title="Tier {t}">**{label}**: {value}</abbr>""", unsafe_allow_html=True)
