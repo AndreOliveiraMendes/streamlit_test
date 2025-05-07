@@ -3,7 +3,11 @@ from itertools import product, combinations
 
 st.title("Small Helper Calculator for MapleStory Bonus Stat")
 
+st.sidebar.title("Links de Referência e Utilitarios")
+
 st.sidebar.markdown("[🧠 Ajuda (Wiki)](https://maplestorywiki.net/w/Bonus_Stats)")
+
+st.sidebar.markdown("[📊 Calculadora de Bonus Stats](https://www.whackybeanz.com/calc/equips/setup)")
 
 with st.expander("Como funciona"):
     st.write(
