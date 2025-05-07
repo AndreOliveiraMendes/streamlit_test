@@ -234,10 +234,8 @@ with col3:
 with col4:
     ms = st.number_input("Valor de cada Tier Misto (ex: 7)", min_value=0, max_value=20, step=1, key="ms")
 st.number_input("Nível do equipamento (ex: 250)",on_change=atualizar_por_nivel, min_value=0, max_value=300, step=1, key="nivel", help="insira o nivel do equipamento ou deixe 0 se deseja inserir manualmente os valores de referencia dos atributos puro e misto")
-max_groups = st.number_input("Número máximo de grupos distintos de 1 a 4. o valor 0 sera considerado 4.", min_value=0, max_value=4, value=4)
+max_groups = st.number_input("Número máximo de grupos distintos de 1 a 4.", min_value=1, max_value=4, value=4)
 if st.button("Calcular Configurações Possíveis"):
-    if max_groups == 0 or max_groups > 4:
-        max_groups = 4
     tiers = get_tiers(stats, ps, ms)
     filtered = list(filter(lambda t: count_groups_used(t) <= max_groups, tiers))
 
