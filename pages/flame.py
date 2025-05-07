@@ -5,6 +5,21 @@ st.title("Small Helper Calculator for MapleStory Bonus Stat")
 
 st.sidebar.markdown("[🧠 Ajuda (Wiki)](https://maplestorywiki.net/w/Bonus_Stats)")
 
+with st.expander("Como funciona"):
+    st.write(
+        """
+        O MapleStory tem um sistema de bônus de atributos que pode ser dividido em dois tipos: **puro** e **misto**.
+        - **Puro**: o bônus é aplicado diretamente a um único atributo.
+        - **Misto**: o bônus é dividido entre dois atributos.
+
+        O valor aplicado a cada um depende do nível do equipamento, que determina o valor de cada tier puro e misto.
+
+        Insira os valores finais de STR, DEX, INT e LUK que você deseja verificar. A calculadora mostrará todas as possíveis combinações de bônus que resultam nesses valores, considerando os tiers puros e mistos.
+
+        O nível do equipamento é opcional, mas pode ser usado para definir automaticamente os valores de cada tier.
+        """
+    )
+
 def get_tiers(stats, ps, ms):
     tiers = []
     if ms == 0:
@@ -51,22 +66,51 @@ def get_tiers(stats, ps, ms):
 def count_groups_used(tier):
     return sum(1 for v in tier if v > 0)
 
-theorical_max = 20*7
+def calcular_ps_ms_por_nivel(nivel):
+    ps, ms = 0, 0
+    if nivel < 200:
+        ps = nivel // 20 + 1
+        ms = nivel // 40 + 1
+    elif nivel < 250:
+        ps = 11 if nivel < 230 else 12
+        ms = 6
+    else:
+        ps, ms = 12, 7
+    return ps, ms
+
+def atualizar_por_nivel():
+    ps, ms = calcular_ps_ms_por_nivel(st.session_state.nivel)
+    st.session_state.ps = ps
+    st.session_state.ms = ms
+
+def get_max_theorical_value(lv):
+    ps, ms = calcular_ps_ms_por_nivel(lv)
+    return 7*ps + 3*7*ms
+
+max_lv = 300
+theorical_max = get_max_theorical_value(max_lv)
+
+st.caption(f"⚠️ Valor máximo teórico por atributo primário: {theorical_max} (nível {max_lv})")
 
 col1, col2 = st.columns(2)
 with col1:
-    str_val = st.number_input("STR", min_value=0, max_value=4*theorical_max, step=1, value=0)
-    int_val = st.number_input("INT", min_value=0, max_value=4*theorical_max, step=1, value=0)
+    str_val = st.number_input("STR", min_value=0, max_value=theorical_max, step=1, value=0)
+    int_val = st.number_input("INT", min_value=0, max_value=theorical_max, step=1, value=0)
 with col2:
-    dex_val = st.number_input("DEX", min_value=0, max_value=4*theorical_max, step=1, value=0)
-    luk_val = st.number_input("LUK", min_value=0, max_value=4*theorical_max, step=1, value=0)
+    dex_val = st.number_input("DEX", min_value=0, max_value=theorical_max, step=1, value=0)
+    luk_val = st.number_input("LUK", min_value=0, max_value=theorical_max, step=1, value=0)
 
 stats = {1: str_val, 2: dex_val, 3: int_val, 4: luk_val}
 
-ps = st.number_input("Valor de cada Tier Puro (ex: 12)", min_value=1, max_value = 20, step=1, value=12)
-ms = st.number_input("Valor de cada Tier Misto (ex: 7)", min_value=1, max_value = 20, step=1, value=7)
+col3, col4 = st.columns(2)
+with col3:
+    ps = st.number_input("Valor de cada Tier Puro (ex: 12)", value=12, min_value=0, max_value=20, step=1, key="ps")
+with col4:
+    ms = st.number_input("Valor de cada Tier Misto (ex: 7)", value=7, min_value=0, max_value=20, step=1, key="ms")
+level = st.number_input("Nível do equipamento (ex: 250)",on_change=atualizar_por_nivel, min_value=0, max_value=300, step=1, key="nivel", help="insira o nivel do equipamento ou deixe 0 se deseja inserir manualmente os valores de referencia dos atributos puro e misto")
+if level > 0:
+    ps = level // 10
 max_groups = st.number_input("Número máximo de grupos distintos de 1 a 4 (0 = ilimitado)", min_value=0, max_value=4, value=4)
-
 if st.button("Calcular Configurações Possíveis"):
     if max_groups == 0 or max_groups > 4:
         max_groups = 4
