@@ -24,23 +24,27 @@ def get_tiers(stats, ps, ms):
                 stats_tiers[i].append(t)
     if any(len(v) == 0 for v in stats_tiers.values()):
         return tiers
-
     for combo in product(*[stats_tiers[i] for i in range(1, 5)]):
+        t1, t2, t3, t4 = combo
         mixed_stats_total_tier = {
-            i: (stats[i] - ps * combo[i - 1]) // ms for i in range(1, 5)
+            i: (stats[i] - ps * combo[i - 1]) // ms for i in range(2, 5)
         }
         possibilities = [
-            list(range(min(7, mixed_stats_total_tier[i], mixed_stats_total_tier[j]) + 1))
-            for i, j in combinations(range(1, 5), 2)
+            range(min(mixed_stats_total_tier[i], mixed_stats_total_tier[j], 7)+1) for i, j in [(2, 4), (3, 4)]
         ]
-        for possible_tiers in product(*possibilities):
-            s = {}
-            s[1] = combo[0] * ps + sum(possible_tiers[i] for i in [0, 1, 2]) * ms
-            s[2] = combo[1] * ps + sum(possible_tiers[i] for i in [0, 3, 4]) * ms
-            s[3] = combo[2] * ps + sum(possible_tiers[i] for i in [1, 3, 5]) * ms
-            s[4] = combo[3] * ps + sum(possible_tiers[i] for i in [2, 4, 5]) * ms
-            if all(s[i] == stats[i] for i in range(1, 5)):
-                tier = list(combo) + list(possible_tiers)
+        for t24, t34 in product(*possibilities):
+            aux_t12 = ps*(t3+t4-t1-t2)+(stats[1]+stats[2]-stats[3]-stats[4])
+            aux_t13 = ps*(t2+t4-t1-t3)+(stats[1]+stats[3]-stats[2]-stats[4])
+            aux_t14 = -ps*t4+stats[4]
+            aux_t23 = ps*(t1-t2-t3-t4)+(stats[2]+stats[3]+stats[4]-stats[1])
+            if not aux_t12%(2*ms) == 0 or not aux_t13%(2*ms) == 0 or not aux_t14%(ms) == 0 or not aux_t23%(2*ms) == 0:
+                continue
+            t12 = aux_t12//(2*ms)+t34
+            t13 = aux_t13//(2*ms)+t24
+            t14 = aux_t14//ms-(t24+t34)
+            t23 = aux_t23//(2*ms)-(t24+t34)
+            tier = [t1, t2, t3, t4, t12, t13, t14, t23, t24, t34]
+            if all(0 <= t <= 7 for t in tier):
                 tiers.append(tier)
     return tiers
 
@@ -59,8 +63,8 @@ with col2:
 
 stats = {1: str_val, 2: dex_val, 3: int_val, 4: luk_val}
 
-ps = st.number_input("Valor de cada Tier Puro (ex: 4)", min_value=1, max_value = 20, step=1, value=4)
-ms = st.number_input("Valor de cada Tier Misto (ex: 2)", min_value=1, max_value = 20, step=1, value=2)
+ps = st.number_input("Valor de cada Tier Puro (ex: 12)", min_value=1, max_value = 20, step=1, value=12)
+ms = st.number_input("Valor de cada Tier Misto (ex: 7)", min_value=1, max_value = 20, step=1, value=7)
 max_groups = st.number_input("Número máximo de grupos distintos de 1 a 4 (0 = ilimitado)", min_value=0, max_value=4, value=4)
 
 if st.button("Calcular Configurações Possíveis"):
