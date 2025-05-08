@@ -187,7 +187,7 @@ def get_max_theorical_value(lv:int) -> int:
     max_value = MAX * (ps + 3 * ms)
     onde ps é o valor do tier puro e ms é o valor do tier misto.
     Os valores de ps e ms são determinados pela função `calcular_ps_ms_por_nivel`.
-    O nível do equipamento deve ser um inteiro entre 0 e 300.
+    O nível do equipamento deve ser um inteiro maior que 0.
     A função retorna o valor máximo teórico que pode ser alcançado com os atributos primários.
 
     Parâmetros:
@@ -200,11 +200,11 @@ def get_max_theorical_value(lv:int) -> int:
 
     Exceções:
 
-        ValueError: Se o nível não for um inteiro ou estiver fora do intervalo de 0 a 300.
+        ValueError: Se o nível for um inteiro menor que 0.
     """
     if not isinstance(lv, int):
         raise ValueError("O nível deve ser um número inteiro.")
-    if lv < 0 or lv > 300:
-        raise ValueError("O nível deve estar entre 0 e 300.")
+    if lv < 0:
+        raise ValueError("O nível deve ser maior ou igual a 0.")
     ps, ms = calcular_ps_ms_por_nivel(lv)
     return MAX_TIER*(ps + 3*ms)
