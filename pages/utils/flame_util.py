@@ -3,13 +3,44 @@ from math import lcm, floor, ceil
 
 MAX_TIER = 7
 
-def extended_gcd(a, b):
+def extended_gcd(a:int, b:int) -> tuple[int, int, int]:
+    """
+    algoritmo de Euclides estendido para encontrar o máximo divisor comum (MDC) bem como os coeficientes de Bézout.
+    O algoritmo é recursivo e retorna o MDC, x e y tais que:
+    a*x + b*y = gcd(a, b)
+
+    Parâmetros:
+
+        a (int): Primeiro número inteiro.
+        b (int): Segundo número inteiro.
+
+    Retorna:
+    
+        tuple[int, int, int]: Tupla contendo o máximo divisor comum (MDC), x e y.
+    """
     if b == 0:
         return a, 1, 0
     d, x1, y1 = extended_gcd(b, a % b)
     return d, y1, x1 - (a // b) * y1
 
-def solve_linear(p, m, s):
+def solve_linear(p:int, m:int, s:int) -> tuple[int, int, int, int]:
+    """
+    resolve a equação diofantica px+my=s usando o algoritmo extendido de euclides.
+
+    Parametros:
+
+        p (int): coeficiente de x
+        m (int): coeficiente de y
+        s (int): valor total desejado
+
+    Retorna:
+
+        tuple[int, int, int, int]: Tupla contendo as soluções particulares (x, y) e os passos dx e dy.
+
+    Exceções:
+
+        ValueError: Se não houver solução para a equação.
+    """
     d, x0, y0 = extended_gcd(p, m)
     if s % d != 0:
         raise ValueError("No solution exists for the given equation.")
@@ -20,7 +51,20 @@ def solve_linear(p, m, s):
     dy = lcm(p, m) // m
     return (x, y, dx, dy)  # or return (x, y) if only one is needed
 
-def limit_y(s, m):
+def limit_y(s:int, m:int) -> int:
+    """
+    Limita o valor de y na equação diofantica px+my=s.
+    o valor de y é limitado assumindo que um stats recebe no maximo 3 tiers mistos.
+
+    Parâmetros:
+
+        s (int): Valor total da equação.
+        m (int): Coeficiente de y na equação.
+
+    Retorna:
+
+        int: Valor máximo permitido para y.
+    """
     return min(3*MAX_TIER, s//m)
 
 def get_tiers(stats:dict[int, int, int, int], ps:int, ms:int) -> list[list[int]]:
