@@ -35,16 +35,21 @@ def get_tiers(stats:dict[int, int, int, int], ps:int, ms:int) -> list[list[int]]
     todas as configurações válidas que resultam nos valores finais fornecidos em `stats`.
 
     Parâmetros:
+
         stats (dict): Dicionário com os valores finais dos atributos, indexado de 1 a 4.
         ps (int): Valor do tier puro (pure scale).
         ms (int): Valor do tier misto (mixed scale).
 
     Retorna:
+
         list[list[int]]: Lista de combinações válidas, cada uma como lista de 10 inteiros.
 
     Exceções:
+
         ValueError: Se o dicionário de stats não contiver exatamente 4 valores ou se os valores não forem inteiros.
+
         ValueError: Se ps ou ms não forem inteiros ou estiverem fora do intervalo permitido (0 a 20).
+
         ValueError: Se os valores dos atributos forem negativos ou se ps e ms forem ambos zero.
     """
     if len(stats) != 4:
@@ -124,13 +129,17 @@ def count_groups_used(tier:list[int]) -> int:
     A função retorna o número de grupos distintos usados na configuração.
 
     Parâmetros:
+
         tier (list[int]): Lista de 10 inteiros representando a configuração de tiers.
     
     Retorna:
+
         int: Número de grupos distintos usados na configuração.
 
     Exceções:
+
         ValueError: Se a lista de tiers não contiver exatamente 10 valores ou se os valores não forem inteiros.
+
         ValueError: Se os valores dos tiers estiverem fora do intervalo permitido (0 a MAX_TIER).
                     onde MAX_TIER é constante definida no módulo flames_utils.
     """
@@ -145,18 +154,22 @@ def count_groups_used(tier:list[int]) -> int:
 def calcular_ps_ms_por_nivel(nivel:int) -> tuple[int, int]:
     """
     Calcula os valores de ps e ms com base no nível do equipamento.
+
     Os valores são determinados de acordo com as seguintes regras:
     - Nível < 200: ps = nível // 20 + 1, ms = nível // 40 + 1
     - Nível < 250: ps = 11 (ou 12 se nível >= 230), ms = 6
     - Nível >= 250: ps = 12, ms = 7
 
     Parâmetros:
+
         nivel (int): Nível do equipamento.
     
     Retorna:
+
         tuple[int, int]: Valores de ps e ms correspondentes ao nível do equipamento.
 
     Exceções:
+
         ValueError: Se o nível não for um inteiro ou estiver fora do intervalo de 0 a 300.
     """
     if not isinstance(nivel, int):
@@ -188,12 +201,15 @@ def get_max_theorical_value(lv:int) -> int:
     A função retorna o valor máximo teórico que pode ser alcançado com os atributos primários.
 
     Parâmetros:
+
         lv (int): Nível do equipamento.
     
     Retorna:
+
         int: Valor máximo teórico que pode ser alcançado com os atributos primários.
 
     Exceções:
+    
         ValueError: Se o nível não for um inteiro ou estiver fora do intervalo de 0 a 300.
     """
     if not isinstance(lv, int):
