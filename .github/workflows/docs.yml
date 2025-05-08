@@ -22,7 +22,7 @@ jobs:
 
       - name: Gerar HTML (pdoc)
         run: |
-          pdoc flame_util.py --output-dir docs-html   # coloque seus módulos aqui
+          pdoc pages/utils --output-dir docs-html   # coloque seus módulos aqui
 
       # empacota a pasta docs-html como artefato “static-site”
       - name: Upload artifact
