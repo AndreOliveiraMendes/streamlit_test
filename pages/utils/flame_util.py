@@ -1,5 +1,7 @@
 from itertools import product
-from math import lcm, ceil
+from math import lcm, floor, ceil
+
+MAX_TIER = 7
 
 def extended_gcd(a, b):
     if b == 0:
@@ -19,7 +21,7 @@ def solve_linear(p, m, s):
     return (x, y, dx, dy)  # or return (x, y) if only one is needed
 
 def limit_y(s, m):
-    return min(7*3, s//m)
+    return min(3*MAX_TIER, s//m)
 
 def get_tiers(stats:dict[int, int, int, int], ps:int, ms:int) -> list[list[int]]:
     """
@@ -63,7 +65,7 @@ def get_tiers(stats:dict[int, int, int, int], ps:int, ms:int) -> list[list[int]]
     if ms == 0:
         tier = []
         for i in range(1, 5):
-            if stats[i] % ps != 0:
+            if stats[i] % ps != 0 or stats[i] // ps > MAX_TIER:
                 return tiers
             tier.append(stats[i]//ps)
         tier = tier + [0]*6
@@ -74,45 +76,15 @@ def get_tiers(stats:dict[int, int, int, int], ps:int, ms:int) -> list[list[int]]
     stats_tiers = {STR: [], DEX: [], INT: [], LUK: []}
     for i in range(1, 5):
         try:
-            x, y, dx, dy = solve_linear(ps, ms, stats[i])
-            yL = limit_y(stats[i], ms)
-            if x > 7:
-                t = ceil((x - 7) / dx)
-                x = x - t * dx
-                y = y + t * dy
-                while x >= 0:
-                    if 0 <= y <= yL:
-                        stats_tiers[i].append(x)
-                    x -= dx
-                    y += dy
-            elif x < 0:
-                t = ceil(-x / dx)
-                x = x + t * dx
-                y = y - t * dy
-                while x <= 7:
-                    if 0 <= y <= yL:
-                        stats_tiers[i].append(x)
-                    x += dx
-                    y -= dy
-            else:
-                if 0 <= y <= yL:
-                    stats_tiers[i].append(x)
-                if x - dx >= 0:
-                    xl = x - dx
-                    yl = y + dy
-                    while xl >= 0:
-                        if 0 <= yl <= yL:
-                            stats_tiers[i].append(xl)
-                        xl -= dx
-                        yl += dy
-                if x + dx <= yL:
-                    xr = x + dx
-                    yr = y - dy
-                    while xr <= 7:
-                        if 0 <= yr <= yL:
-                            stats_tiers[i].append(xr)
-                        xr += dx
-                        yr -= dy
+            x0, y0, dx, dy = solve_linear(ps, ms, stats[i])
+            tx1 = ceil(-x0/dx)
+            tx2 = floor((MAX_TIER-x0)/dx)
+            ty1 = ceil((y0-limit_y(stats[i], ms))/dy)
+            ty2 = floor(y0/dy)
+            for tx in range(max(tx1, ty1), min(tx2, ty2)+1):
+                x = x0 + tx*dx
+                y = y0 - tx*dy
+                stats_tiers[i].append(x)
         except ValueError:
             return []
     if any(len(v) == 0 for v in stats_tiers.values()):
@@ -123,7 +95,7 @@ def get_tiers(stats:dict[int, int, int, int], ps:int, ms:int) -> list[list[int]]
             i: (stats[i] - ps * combo[i - 1]) // ms for i in range(2, 5)
         }
         possibilities = [
-            range(min(mixed_stats_total_tier[i], mixed_stats_total_tier[j], 7)+1) for i, j in [(DEX, LUK), (INT, LUK)]
+            range(min(mixed_stats_total_tier[i], mixed_stats_total_tier[j], MAX_TIER)+1) for i, j in [(DEX, LUK), (INT, LUK)]
         ]
         for t24, t34 in product(*possibilities):
             aux_t12 = ps*(t3+t4-t1-t2)+(stats[STR]+stats[DEX]-stats[INT]-stats[LUK])
@@ -137,7 +109,7 @@ def get_tiers(stats:dict[int, int, int, int], ps:int, ms:int) -> list[list[int]]
             t14 = aux_t14//ms-(t24+t34)
             t23 = aux_t23//(2*ms)-(t24+t34)
             tier = [t1, t2, t3, t4, t12, t13, t14, t23, t24, t34]
-            if all(0 <= t <= 7 for t in tier):
+            if all(0 <= t <= MAX_TIER for t in tier):
                 tiers.append(tier)
     return tiers
 
@@ -159,14 +131,15 @@ def count_groups_used(tier:list[int]) -> int:
 
     Exceções:
         ValueError: Se a lista de tiers não contiver exatamente 10 valores ou se os valores não forem inteiros.
-        ValueError: Se os valores dos tiers estiverem fora do intervalo permitido (0 a 7).
+        ValueError: Se os valores dos tiers estiverem fora do intervalo permitido (0 a MAX_TIER).
+                    onde MAX_TIER é constante definida no módulo flames_utils.
     """
     if len(tier) != 10:
         raise ValueError("A configuração de tiers deve conter exatamente 10 valores.")
     if any(not isinstance(t, int) for t in tier):
         raise ValueError("Todos os valores dos tiers devem ser inteiros.")
-    if any(t < 0 or t > 7 for t in tier):
-        raise ValueError("Os valores dos tiers devem estar entre 0 e 7.")
+    if any(t < 0 or t > MAX_TIER for t in tier):
+        raise ValueError(f"Os valores dos tiers devem estar entre 0 e {MAX_TIER}.")
     return sum(1 for v in tier if v > 0)
 
 def calcular_ps_ms_por_nivel(nivel:int) -> tuple[int, int]:
@@ -207,7 +180,7 @@ def get_max_theorical_value(lv:int) -> int:
     com base no nível do equipamento.
 
     O valor máximo é calculado como:
-    max_value = 7 * ps + 3 * 7 * ms
+    max_value = MAX * (ps + 3 * ms)
 
     onde ps é o valor do tier puro e ms é o valor do tier misto.
     Os valores de ps e ms são determinados pela função `calcular_ps_ms_por_nivel`.
@@ -228,4 +201,4 @@ def get_max_theorical_value(lv:int) -> int:
     if lv < 0 or lv > 300:
         raise ValueError("O nível deve estar entre 0 e 300.")
     ps, ms = calcular_ps_ms_por_nivel(lv)
-    return 7*ps + 3*7*ms
+    return MAX_TIER*(ps + 3*ms)
