@@ -26,11 +26,9 @@ def limit_y(s, m):
 def get_tiers(stats:dict[int, int, int, int], ps:int, ms:int) -> list[list[int]]:
     """
     Gera todas as combinações possíveis de tiers para os atributos STR, DEX, INT e LUK.
-
     Cada combinação é representada como uma lista de 10 inteiros:
     - Os primeiros 4 representam os tiers puros: STR, DEX, INT e LUK.
     - Os últimos 6 representam os tiers mistos: STR/DEX, STR/INT, STR/LUK, DEX/INT, DEX/LUK, INT/LUK.
-
     A função considera os valores de ps (escala de bônus puro) e ms (escala de bônus misto) para calcular
     todas as configurações válidas que resultam nos valores finais fornecidos em `stats`.
 
@@ -47,9 +45,7 @@ def get_tiers(stats:dict[int, int, int, int], ps:int, ms:int) -> list[list[int]]
     Exceções:
 
         ValueError: Se o dicionário de stats não contiver exatamente 4 valores ou se os valores não forem inteiros.
-
         ValueError: Se ps ou ms não forem inteiros ou estiverem fora do intervalo permitido (0 a 20).
-
         ValueError: Se os valores dos atributos forem negativos ou se ps e ms forem ambos zero.
     """
     if len(stats) != 4:
@@ -121,11 +117,9 @@ def get_tiers(stats:dict[int, int, int, int], ps:int, ms:int) -> list[list[int]]
 def count_groups_used(tier:list[int]) -> int:
     """
     Conta o número de grupos distintos usados em uma configuração de tiers.
-
     Os grupos são definidos como:
     - Puro: STR, DEX, INT, LUK (índices 0 a 3)
     - Misto: STR/DEX, STR/INT, STR/LUK, DEX/INT, DEX/LUK, INT/LUK (índices 4 a 9)
-
     A função retorna o número de grupos distintos usados na configuração.
 
     Parâmetros:
@@ -139,7 +133,6 @@ def count_groups_used(tier:list[int]) -> int:
     Exceções:
 
         ValueError: Se a lista de tiers não contiver exatamente 10 valores ou se os valores não forem inteiros.
-
         ValueError: Se os valores dos tiers estiverem fora do intervalo permitido (0 a MAX_TIER).
                     onde MAX_TIER é constante definida no módulo flames_utils.
     """
@@ -154,7 +147,6 @@ def count_groups_used(tier:list[int]) -> int:
 def calcular_ps_ms_por_nivel(nivel:int) -> tuple[int, int]:
     """
     Calcula os valores de ps e ms com base no nível do equipamento.
-
     Os valores são determinados de acordo com as seguintes regras:
     - Nível < 200: ps = nível // 20 + 1, ms = nível // 40 + 1
     - Nível < 250: ps = 11 (ou 12 se nível >= 230), ms = 6
@@ -191,10 +183,8 @@ def get_max_theorical_value(lv:int) -> int:
     """
     Calcula o valor máximo teórico que pode ser alcançado com os atributos primários (STR, DEX, INT, LUK)
     com base no nível do equipamento.
-
     O valor máximo é calculado como:
     max_value = MAX * (ps + 3 * ms)
-
     onde ps é o valor do tier puro e ms é o valor do tier misto.
     Os valores de ps e ms são determinados pela função `calcular_ps_ms_por_nivel`.
     O nível do equipamento deve ser um inteiro entre 0 e 300.
@@ -209,7 +199,7 @@ def get_max_theorical_value(lv:int) -> int:
         int: Valor máximo teórico que pode ser alcançado com os atributos primários.
 
     Exceções:
-    
+
         ValueError: Se o nível não for um inteiro ou estiver fora do intervalo de 0 a 300.
     """
     if not isinstance(lv, int):
