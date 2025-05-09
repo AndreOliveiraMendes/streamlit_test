@@ -2,6 +2,7 @@ from itertools import product
 from math import lcm, floor, ceil
 
 MAX_TIER = 7
+"""Valor máximo de cada tier (puro ou misto) para os atributos STR, DEX, INT e LUK."""
 
 def extended_gcd(a:int, b:int) -> tuple[int, int, int]:
     """
