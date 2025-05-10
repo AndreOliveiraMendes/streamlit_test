@@ -56,7 +56,9 @@ jobs:
       - name: Upload para GitHub Pages
         uses: actions/upload-pages-artifact@v3
         with:
+          name: github-pages
           path: docs-html
+          if-no-files-found: error
 
   deploy:
     needs: build-docs
