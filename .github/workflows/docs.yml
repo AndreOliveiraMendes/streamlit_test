@@ -28,23 +28,13 @@ jobs:
       - name: Gerar doc da branch atual
         run: |
           BRANCH_NAME=${GITHUB_REF##*/}
+          if [ $BRANCH_NAME = "main" ]; then
+             path_name="stable"
+          else
+             path_name="dev"
+          fi
           mkdir -p docs-html/$BRANCH_NAME
-          pdoc pages/utils --output-dir docs-html/$BRANCH_NAME
-          
-
-      - name: debug caminho
-        run: |
-          BRANCH_NAME=${GITHUB_REF##*/}
-          echo "docs-html/${BRANCH_NAME}"
-      
-      - name: debug working-directory
-        run: echo ${{ github.workspace}}
-      
-      - name: debug where i am
-        run: pwd
-      
-      - name: debug what there
-        run: ls
+          pdoc pages/utils --output-dir docs-html/$path_name
 
       - name: Gerar doc da branch main (caso não seja ela)
         if: github.ref != 'refs/heads/main'
@@ -68,18 +58,12 @@ jobs:
         run: |
           echo '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=./stable/" /><title>Redirecting...</title></head><body><p>Redirecting to <a href="./stable/">stable</a>...</p></body></html>' > docs-html/index.html
 
-      - name: check final result
-        run: ls -lR
-
       - name: Upload para GitHub Pages
         uses: actions/upload-pages-artifact@v3
         with:
           name: github-pages
           path: docs-html
           if-no-files-found: error
-
-      - name: check after upload
-        run: ls -lR
 
   deploy:
     needs: build-docs
