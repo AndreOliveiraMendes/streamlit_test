@@ -46,22 +46,29 @@ def generate_auxiliar_matrix(num_stats):
         matrix.append(row)
     return matrix
 
+def value_format(value, extra=""):
+    result = ""
+    if isinstance(value, int):
+        result = ('+' if value > 0 else '-') + (str(abs(value)) + extra if abs(value) != 1 else '')
+    else:
+        result = ('+' if value > 0 else '-') + (value + extra if abs(value) != 1 else '')
+    return result.replace("--", "+")
+
 def decode_step(step):
     if step[0] == "swap":
         i, j = step[1], step[2]
         return "M[{i}], M[{j}] = M.row({j}), M.row({j})"
     elif step[0] == "subtract":
         i, j, factor = step[1], step[2], step[3]
-        return f"M[{j}] = M.row({j}){'-' if factor > 0 else '+'}{str(abs(factor)) + '*' if abs(factor) != 1 else ''}M.row({i})"
+        return f"M[{j}] = M.row({j}){value_format(-factor, '*')}M.row({i})"
     elif step[0] == "multiply":
         i, factor = step[1], step[2]
-        return f"M[{i}] = {'+' if factor > 0 else '-'}{str(abs(factor)) + '*' if abs(factor) != 1 else ''}M.row({i})"
+        return f"M[{i}] = f{value_format(factor, '*')}M.row({i})"
     elif step[0] == "comment":
         comment = step[1]
         return f"# {comment}"
     elif step[0] == "divide":
         i, factor = step[1], step[2]
-
         return f"M[{i}] = {'-' if factor < 0 else ''}M.row({i}){'/' + str(abs(factor)) if abs(factor) != 1 else ''}"
     else:
         raise NotImplementedError(f"Unknown step type: {step[0]}")
