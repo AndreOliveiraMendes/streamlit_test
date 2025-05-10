@@ -33,8 +33,8 @@ jobs:
         run: |
           git fetch origin main
           git checkout origin/main
-          mkdir -p ../docs-html/stable
-          pdoc pages/utils --output-dir ../docs-html/stable
+          mkdir -p docs-html/stable
+          pdoc pages/utils --output-dir docs-html/stable
         working-directory: ${{ github.workspace }}
 
       - name: Gerar doc da branch dev (caso não seja ela)
@@ -42,8 +42,8 @@ jobs:
         run: |
           git fetch origin dev
           git checkout origin/dev
-          mkdir -p ../docs-html/dev
-          pdoc pages/utils --output-dir ../docs-html/dev
+          mkdir -p docs-html/dev
+          pdoc pages/utils --output-dir docs-html/dev
         working-directory: ${{ github.workspace }}
 
       - name: Criar index.html (redirect para /stable/)
