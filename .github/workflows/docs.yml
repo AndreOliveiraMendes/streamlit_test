@@ -72,7 +72,7 @@ jobs:
         run: ls
       
       - name: check created
-        run: ls docs-html
+        run: ls /docs-html/
 
       - name: Upload para GitHub Pages
         uses: actions/upload-pages-artifact@v3
