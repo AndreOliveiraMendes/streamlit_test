@@ -69,10 +69,7 @@ jobs:
           echo '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=./stable/" /><title>Redirecting...</title></head><body><p>Redirecting to <a href="./stable/">stable</a>...</p></body></html>' > docs-html/index.html
 
       - name: check final result
-        run: ls
-      
-      - name: check created
-        run: ls docs-html/
+        run: ls -lR
 
       - name: Upload para GitHub Pages
         uses: actions/upload-pages-artifact@v3
@@ -82,13 +79,7 @@ jobs:
           if-no-files-found: error
 
       - name: check after upload
-        run: |
-          echo "aqui:"
-          ls
-          echo "la:"
-          ls docs-html/
-          echo "ali:"
-          ls pages/
+        run: ls -lR
 
   deploy:
     needs: build-docs
