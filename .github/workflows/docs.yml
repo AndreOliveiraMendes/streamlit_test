@@ -1,14 +1,14 @@
-name: Doc (pdoc → GitHub Pages)
+name: Doc (pdoc → GitHub Pages com redirecionamento dinâmico)
 
 on:
   push:
-    branches: [ main, dev ]          # ou a branch que preferir
-  workflow_dispatch:            # permite disparar manualmente
+    branches: [ main, dev ]
+  workflow_dispatch:
 
 permissions:
-  contents: read                # checkout
-  pages: write                  # publicar no Pages
-  id-token: write               # necessário p/ deploy
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
   build-docs:
@@ -20,37 +20,21 @@ jobs:
       - name: Instalar pdoc
         run: pip install pdoc
 
-      - name: Determinar subpasta por branch
-        id: vars
+      - name: Determinar nome da branch
+        id: branch
         run: |
-          if [[ "$GITHUB_REF" == "refs/heads/main" ]]; then
-            echo "subdir=stable" >> $GITHUB_OUTPUT
-            echo "is_main=true" >> $GITHUB_OUTPUT
-          else
-            echo "subdir=dev" >> $GITHUB_OUTPUT
-            echo "is_main=false" >> $GITHUB_OUTPUT
-          fi
+          BRANCH_NAME=${GITHUB_REF##*/}
+          echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
 
       - name: Gerar HTML (pdoc)
         run: |
-          mkdir -p docs-html/${{ steps.vars.outputs.subdir }}
-          pdoc pages/utils --output-dir docs-html/${{ steps.vars.outputs.subdir }}
+          mkdir -p docs-html/${{ steps.branch.outputs.branch_name }}
+          pdoc pages/utils --output-dir docs-html/${{ steps.branch.outputs.branch_name }}
 
-      - name: Adicionar index.html condicional
+      - name: Criar index.html com redirecionamento dinâmico
         run: |
-          if [[ "$GITHUB_REF" == "refs/heads/main" ]]; then
-            echo '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=./stable/" /><title>Redirecting...</title></head><body><p>Redirecting to <a href="./stable/">stable version</a>...</p></body></html>' > docs-html/index.html
-          else
-            echo '<!DOCTYPE html><html><head><title>Documentação</title></head><body><p>Documentação disponível em <a href="./dev/">/dev/</a> e <a href="./stable/">/stable/</a>.</p></body></html>' > docs-html/index.html
-          fi
-      
-      - name: Verificar conteúdo final
-        run: |
-          ls -R docs-html || true
-          echo "index.html:"
-          cat docs-html/index.html || echo "index.html não encontrado"
+          echo '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=./${{ steps.branch.outputs.branch_name }}/" /><title>Redirecting...</title></head><body><p>Redirecionando para <a href="./${{ steps.branch.outputs.branch_name }}/">${{ steps.branch.outputs.branch_name }}</a>...</p></body></html>' > docs-html/index.html
 
-      # empacota a pasta docs-html como artefato “static-site”
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
@@ -65,4 +49,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4   # ação oficial do GitHub
+        uses: actions/deploy-pages@v4
