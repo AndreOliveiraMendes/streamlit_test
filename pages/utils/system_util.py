@@ -51,7 +51,7 @@ def value_format(value, extra=""):
     if isinstance(value, int):
         result = ('+' if value > 0 else '-') + (str(abs(value)) + extra if abs(value) != 1 else '')
     else:
-        result = ('+' if not '-' in value else '-') + (value + extra if value != '1' else '')
+        result = ('+' if not '-' in value else '-') + (value + extra if not value in ['1', '-1'] else '')
     return result.replace("--", "+")
 
 def decode_step(step):
