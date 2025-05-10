@@ -36,8 +36,15 @@ jobs:
         run: |
           BRANCH_NAME=${GITHUB_REF##*/}
           echo "docs-html/${BRANCH_NAME}"
-          echo ${{ github.workspace}}
-          ls
+      
+      - name: debug working-directory
+        run: echo ${{ github.workspace}}
+      
+      - name: debug where i am
+        run: pwd
+      
+      - name: debug what there
+        run: ls
 
       - name: Gerar doc da branch main (caso não seja ela)
         if: github.ref != 'refs/heads/main'
@@ -61,12 +68,18 @@ jobs:
         run: |
           echo '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=./stable/" /><title>Redirecting...</title></head><body><p>Redirecting to <a href="./stable/">stable</a>...</p></body></html>' > docs-html/index.html
 
+      - name: check final result
+        run: ls -lR
+
       - name: Upload para GitHub Pages
         uses: actions/upload-pages-artifact@v3
         with:
           name: github-pages
           path: docs-html
           if-no-files-found: error
+
+      - name: check after upload
+        run: ls -lR
 
   deploy:
     needs: build-docs
