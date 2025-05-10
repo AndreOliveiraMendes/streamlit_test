@@ -81,6 +81,15 @@ jobs:
           path: docs-html
           if-no-files-found: error
 
+      - name: check after upload
+        run: |
+          echo: "aqui:"
+          ls
+          echo: "la:"
+          ls docs-html/
+          echo: "ali:"
+          ls pages/
+
   deploy:
     needs: build-docs
     runs-on: ubuntu-latest
