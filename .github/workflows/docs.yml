@@ -20,17 +20,34 @@ jobs:
       - name: Instalar pdoc
         run: pip install pdoc
 
+      - name: Determinar subpasta por branch
+        id: vars
+        run: |
+          if [[ "$GITHUB_REF" == "refs/heads/main" ]]; then
+            echo "subdir=stable" >> $GITHUB_OUTPUT
+            echo "is_main=true" >> $GITHUB_OUTPUT
+          else
+            echo "subdir=dev" >> $GITHUB_OUTPUT
+            echo "is_main=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Gerar HTML (pdoc)
         run: |
-          BRANCH_NAME=${GITHUB_REF##*/}
-          SUBDIR=$([ "$BRANCH_NAME" = "main" ] && echo "stable" || echo "dev")
-          mkdir -p docs-html/$SUBDIR
-          pdoc pages/utils --output-dir docs-html/$SUBDIR
+          mkdir -p docs-html/${{ steps.vars.outputs.subdir }}
+          pdoc pages/utils --output-dir docs-html/${{ steps.vars.outputs.subdir }}
 
-      - name: Adicionar redirecionamento para /stable (apenas em main)
-        if: github.ref == 'refs/heads/main'
+      - name: Adicionar redirecionamento para /stable (apenas na main)
+        if: steps.vars.outputs.is_main == 'true'
         run: |
           echo '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=./stable/" /><title>Redirecting...</title></head><body><p>Redirecting to <a href="./stable/">stable version</a>...</p></body></html>' > docs-html/index.html
+      
+      - name: Verificar conteúdo gerado
+        run: |
+          echo "Conteúdo da pasta docs-html:"
+          ls -R docs-html || true
+          echo "Conteúdo do index.html (se existir):"
+          cat docs-html/index.html || echo "index.html não encontrado!"
+
       # empacota a pasta docs-html como artefato “static-site”
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
