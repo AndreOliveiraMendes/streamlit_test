@@ -83,11 +83,11 @@ jobs:
 
       - name: check after upload
         run: |
-          echo: "aqui:"
+          echo "aqui:"
           ls
-          echo: "la:"
+          echo "la:"
           ls docs-html/
-          echo: "ali:"
+          echo "ali:"
           ls pages/
 
   deploy:
