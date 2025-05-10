@@ -1,4 +1,4 @@
-name: Doc (pdoc → GitHub Pages com redirecionamento dinâmico)
+name: Doc (pdoc múltiplas versões + redirect)
 
 on:
   push:
@@ -14,28 +14,43 @@ jobs:
   build-docs:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout branch atual
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # necessário para trocar de branch depois
 
       - name: Instalar pdoc
         run: pip install pdoc
 
-      - name: Determinar nome da branch
-        id: branch
+      - name: Gerar doc da branch atual
         run: |
           BRANCH_NAME=${GITHUB_REF##*/}
-          echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
+          mkdir -p docs-html/$BRANCH_NAME
+          pdoc pages/utils --output-dir docs-html/$BRANCH_NAME
 
-      - name: Gerar HTML (pdoc)
+      - name: Gerar doc da branch main (caso não seja ela)
+        if: github.ref != 'refs/heads/main'
         run: |
-          mkdir -p docs-html/${{ steps.branch.outputs.branch_name }}
-          pdoc pages/utils --output-dir docs-html/${{ steps.branch.outputs.branch_name }}
+          git fetch origin main
+          git checkout origin/main
+          mkdir -p docs-html/stable
+          pdoc pages/utils --output-dir docs-html/stable
+        working-directory: ${{ github.workspace }}
 
-      - name: Criar index.html com redirecionamento dinâmico
+      - name: Gerar doc da branch dev (caso não seja ela)
+        if: github.ref != 'refs/heads/dev'
         run: |
-          echo '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=./${{ steps.branch.outputs.branch_name }}/" /><title>Redirecting...</title></head><body><p>Redirecionando para <a href="./${{ steps.branch.outputs.branch_name }}/">${{ steps.branch.outputs.branch_name }}</a>...</p></body></html>' > docs-html/index.html
+          git fetch origin dev
+          git checkout origin/dev
+          mkdir -p docs-html/dev
+          pdoc pages/utils --output-dir docs-html/dev
+        working-directory: ${{ github.workspace }}
 
-      - name: Upload artifact
+      - name: Criar index.html (redirect para /stable/)
+        run: |
+          echo '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=./stable/" /><title>Redirecting...</title></head><body><p>Redirecting to <a href="./stable/">stable</a>...</p></body></html>' > docs-html/index.html
+
+      - name: Upload para GitHub Pages
         uses: actions/upload-pages-artifact@v3
         with:
           path: docs-html
@@ -45,8 +60,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy to GitHub Pages
+      - name: Deploy Pages
         id: deployment
         uses: actions/deploy-pages@v4
