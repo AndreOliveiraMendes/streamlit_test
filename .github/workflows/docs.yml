@@ -36,6 +36,8 @@ jobs:
         run: |
           BRANCH_NAME=${GITHUB_REF##*/}
           echo "docs-html/${BRANCH_NAME}"
+          echo ${{ github.workspace}}
+          ls
 
       - name: Gerar doc da branch main (caso não seja ela)
         if: github.ref != 'refs/heads/main'
