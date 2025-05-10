@@ -2,7 +2,7 @@ name: Doc (pdoc → GitHub Pages)
 
 on:
   push:
-    branches: [ main ]          # ou a branch que preferir
+    branches: [ main, dev ]          # ou a branch que preferir
   workflow_dispatch:            # permite disparar manualmente
 
 permissions:
@@ -22,8 +22,15 @@ jobs:
 
       - name: Gerar HTML (pdoc)
         run: |
-          pdoc pages/utils --output-dir docs-html   # coloque seus módulos aqui
+          BRANCH_NAME=${GITHUB_REF##*/}
+          SUBDIR=$([ "$BRANCH_NAME" = "main" ] && echo "stable" || echo "dev")
+          mkdir -p docs-html/$SUBDIR
+          pdoc pages/utils --output-dir docs-html/$SUBDIR
 
+      - name: Adicionar redirecionamento para /stable (apenas em main)
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=./stable/" /><title>Redirecting...</title></head><body><p>Redirecting to <a href="./stable/">stable version</a>...</p></body></html>' > docs-html/index.html
       # empacota a pasta docs-html como artefato “static-site”
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
