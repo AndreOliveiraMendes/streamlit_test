@@ -36,17 +36,19 @@ jobs:
           mkdir -p docs-html/${{ steps.vars.outputs.subdir }}
           pdoc pages/utils --output-dir docs-html/${{ steps.vars.outputs.subdir }}
 
-      - name: Adicionar redirecionamento para /stable (apenas na main)
-        if: steps.vars.outputs.is_main == 'true'
+      - name: Adicionar index.html condicional
         run: |
+        if [[ "${{ steps.vars.outputs.is_main }}" == "true" ]]; then
           echo '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=./stable/" /><title>Redirecting...</title></head><body><p>Redirecting to <a href="./stable/">stable version</a>...</p></body></html>' > docs-html/index.html
+        else
+            echo '<!DOCTYPE html><html><head><title>Documentação</title></head><body><p>Documentação disponível em <a href="./dev/">/dev/</a> e <a href="./stable/">/stable/</a>.</p></body></html>' > docs-html/index.html
+          fi
       
-      - name: Verificar conteúdo gerado
+      - name: Verificar conteúdo final
         run: |
-          echo "Conteúdo da pasta docs-html:"
           ls -R docs-html || true
-          echo "Conteúdo do index.html (se existir):"
-          cat docs-html/index.html || echo "index.html não encontrado!"
+          echo "index.html:"
+          cat docs-html/index.html || echo "index.html não encontrado"
 
       # empacota a pasta docs-html como artefato “static-site”
       - name: Upload artifact
