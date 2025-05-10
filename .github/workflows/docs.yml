@@ -25,14 +25,7 @@ jobs:
       - name: Clean workspace
         run: rm -rf docs-html
 
-      - name: Gerar doc da branch atual
-        run: |
-          BRANCH_NAME=${GITHUB_REF##*/}
-          mkdir -p docs-html/$BRANCH_NAME
-          pdoc pages/utils --output-dir docs-html/$BRANCH_NAME
-
       - name: Gerar doc da branch main (caso não seja ela)
-        if: github.ref != 'refs/heads/main'
         run: |
           git fetch origin main
           git checkout origin/main
@@ -41,7 +34,6 @@ jobs:
         working-directory: ${{ github.workspace }}
 
       - name: Gerar doc da branch dev (caso não seja ela)
-        if: github.ref != 'refs/heads/dev'
         run: |
           git fetch origin dev
           git checkout origin/dev
