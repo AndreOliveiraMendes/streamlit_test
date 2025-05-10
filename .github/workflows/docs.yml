@@ -22,7 +22,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Mostrar modo de execução
-        run: echo "Modo: ${{ github.event.inputs.modo || 'normal' }}"
+        run: |
+          MODO="${{ github.event.inputs.modo }}"
+          if [ -z "$MODO" ]; then MODO="normal"; fi
+          echo "Modo: $MODO"
 
       - name: Checkout branch atual
         uses: actions/checkout@v4
@@ -56,4 +59,32 @@ jobs:
           pdoc pages/utils --output-dir docs-html/dev
         working-directory: ${{ github.workspace }}
 
-      - name
+      - name: Criar index.html (redirect para /stable/)
+        run: |
+          echo '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=./stable/" /><title>Redirecting...</title></head><body><p>Redirecting to <a href="./stable/">stable</a>...</p></body></html>' > docs-html/index.html
+
+      - name: Upload como artifact (dry-run)
+        if: ${{ github.event.inputs.modo == 'dry-run' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-dry-run
+          path: docs-html
+
+      - name: Upload para GitHub Pages (modo normal)
+        if: ${{ github.event.inputs.modo != 'dry-run' }}
+        uses: actions/upload-pages-artifact@v3
+        with:
+          name: github-pages
+          path: docs-html
+          if-no-files-found: error
+
+  deploy:
+    if: ${{ github.event.inputs.modo != 'dry-run' }}
+    needs: build-docs
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+    steps:
+      - name: Deploy Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
