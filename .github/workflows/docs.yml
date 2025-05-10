@@ -32,6 +32,7 @@ jobs:
           pdoc pages/utils --output-dir docs-html/$BRANCH_NAME
 
       - name: debug caminho
+        run: |
           BRANCH_NAME=${GITHUB_REF##*/}
           echo docs-html/$BRANCH_NAME
 
