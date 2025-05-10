@@ -36,8 +36,15 @@ jobs:
         run: |
           BRANCH_NAME=${GITHUB_REF##*/}
           echo "docs-html/${BRANCH_NAME}"
-          echo ${{ github.workspace}}
-          ls
+      
+      - name: debug working-directory
+        run: echo ${{ github.workspace}}
+      
+      - name: debug where i am
+        run: pwd
+      
+      - name: debug what there
+        run: ls
 
       - name: Gerar doc da branch main (caso não seja ela)
         if: github.ref != 'refs/heads/main'
