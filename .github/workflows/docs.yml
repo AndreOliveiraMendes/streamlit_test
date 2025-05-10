@@ -1,55 +1,56 @@
-name: Doc (pdoc → GitHub Pages)
+name: Doc (pdoc múltiplas versões + redirect)
 
 on:
   push:
-    branches: [ main, dev ]          # ou a branch que preferir
-  workflow_dispatch:            # permite disparar manualmente
+    branches: [ main, dev ]
+  workflow_dispatch:
 
 permissions:
-  contents: read                # checkout
-  pages: write                  # publicar no Pages
-  id-token: write               # necessário p/ deploy
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
   build-docs:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout branch atual
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # necessário para trocar de branch depois
 
       - name: Instalar pdoc
         run: pip install pdoc
 
-      - name: Determinar subpasta por branch
-        id: vars
+      - name: Gerar doc da branch atual
         run: |
-          if [[ "$GITHUB_REF" == "refs/heads/main" ]]; then
-            echo "subdir=stable" >> $GITHUB_OUTPUT
-            echo "is_main=true" >> $GITHUB_OUTPUT
-          else
-            echo "subdir=dev" >> $GITHUB_OUTPUT
-            echo "is_main=false" >> $GITHUB_OUTPUT
-          fi
+          BRANCH_NAME=${GITHUB_REF##*/}
+          mkdir -p docs-html/$BRANCH_NAME
+          pdoc pages/utils --output-dir docs-html/$BRANCH_NAME
 
-      - name: Gerar HTML (pdoc)
+      - name: Gerar doc da branch main (caso não seja ela)
+        if: github.ref != 'refs/heads/main'
         run: |
-          mkdir -p docs-html/${{ steps.vars.outputs.subdir }}
-          pdoc pages/utils --output-dir docs-html/${{ steps.vars.outputs.subdir }}
+          git fetch origin main
+          git checkout origin/main
+          mkdir -p ../docs-html/stable
+          pdoc pages/utils --output-dir ../docs-html/stable
+        working-directory: ${{ github.workspace }}
 
-      - name: Adicionar redirecionamento para /stable (apenas na main)
-        if: steps.vars.outputs.is_main == 'true'
+      - name: Gerar doc da branch dev (caso não seja ela)
+        if: github.ref != 'refs/heads/dev'
         run: |
-          echo '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=./stable/" /><title>Redirecting...</title></head><body><p>Redirecting to <a href="./stable/">stable version</a>...</p></body></html>' > docs-html/index.html
-      
-      - name: Verificar conteúdo gerado
-        run: |
-          echo "Conteúdo da pasta docs-html:"
-          ls -R docs-html || true
-          echo "Conteúdo do index.html (se existir):"
-          cat docs-html/index.html || echo "index.html não encontrado!"
+          git fetch origin dev
+          git checkout origin/dev
+          mkdir -p ../docs-html/dev
+          pdoc pages/utils --output-dir ../docs-html/dev
+        working-directory: ${{ github.workspace }}
 
-      # empacota a pasta docs-html como artefato “static-site”
-      - name: Upload artifact
+      - name: Criar index.html (redirect para /stable/)
+        run: |
+          echo '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=./stable/" /><title>Redirecting...</title></head><body><p>Redirecting to <a href="./stable/">stable</a>...</p></body></html>' > docs-html/index.html
+
+      - name: Upload para GitHub Pages
         uses: actions/upload-pages-artifact@v3
         with:
           path: docs-html
@@ -59,8 +60,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy to GitHub Pages
+      - name: Deploy Pages
         id: deployment
-        uses: actions/deploy-pages@v4   # ação oficial do GitHub
+        uses: actions/deploy-pages@v4
