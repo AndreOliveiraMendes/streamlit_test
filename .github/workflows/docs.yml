@@ -38,9 +38,9 @@ jobs:
 
       - name: Adicionar index.html condicional
         run: |
-        if [[ "${{ steps.vars.outputs.is_main }}" == "true" ]]; then
-          echo '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=./stable/" /><title>Redirecting...</title></head><body><p>Redirecting to <a href="./stable/">stable version</a>...</p></body></html>' > docs-html/index.html
-        else
+          if [[ "$GITHUB_REF" == "refs/heads/main" ]]; then
+            echo '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=./stable/" /><title>Redirecting...</title></head><body><p>Redirecting to <a href="./stable/">stable version</a>...</p></body></html>' > docs-html/index.html
+          else
             echo '<!DOCTYPE html><html><head><title>Documentação</title></head><body><p>Documentação disponível em <a href="./dev/">/dev/</a> e <a href="./stable/">/stable/</a>.</p></body></html>' > docs-html/index.html
           fi
       
