@@ -35,7 +35,7 @@ jobs:
       - name: debug caminho
         run: |
           BRANCH_NAME=${GITHUB_REF##*/}
-          echo "docs-tmls/${{BRANCH_NAME}}"
+          echo "docs-html/${BRANCH_NAME}"
 
       - name: Gerar doc da branch main (caso não seja ela)
         if: github.ref != 'refs/heads/main'
