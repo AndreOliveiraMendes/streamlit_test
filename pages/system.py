@@ -1,5 +1,5 @@
 import streamlit as st, textwrap
-from pages.utils.system_util import generate_extended_matrix, generate_auxiliar_matrix, decode_step, scale_by_a_factor, value_format, apply_row_elimination
+from pages.utils.system_util import generate_extended_matrix, generate_auxiliar_matrix, decode_step, apply_row_elimination
 from math import gcd, lcm
 from itertools import combinations
 
