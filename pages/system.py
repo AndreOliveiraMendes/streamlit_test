@@ -1,5 +1,5 @@
 import streamlit as st, textwrap
-from pages.utils.system_util import generate_extended_matrix, generate_auxiliar_matrix, decode_step, scale_by_a_factor, value_format
+from pages.utils.system_util import generate_extended_matrix, generate_auxiliar_matrix, decode_step, scale_by_a_factor, value_format, apply_row_elimination
 from math import gcd, lcm
 from itertools import combinations
 
@@ -38,27 +38,13 @@ def write_sage_steps(matrix, num_stats, sage_code_introduction = None, ignore_co
         if pivot == 0:
             raise NotImplementedError("the function can't handle this case yet")
         for j in range(i + 1, num_stats):
-            if (ref := aux_matrix[j][i]) == 0:
-                continue
-            if ref%pivot != 0:
-                ref, pivot = scale_by_a_factor(aux_matrix, matrix_width, i, j, pivot, ref, aux_steps)
-            factor = ref // pivot
-            for k in range(matrix_width):
-                aux_matrix[j][k] -= factor * aux_matrix[i][k]
-            aux_steps.append(("subtract", i, j, factor))
+            apply_row_elimination(aux_matrix, i, j, aux_steps, matrix_width, pivot)
     if not ignore_comments:
         aux_steps.append(("comment", "second step: back substitution"))
     for i in range(num_stats-1, -1, -1):
         pivot = aux_matrix[i][i]
         for j in range(i - 1, -1, -1):
-            if(ref := aux_matrix[j][i]) == 0:
-                continue
-            if ref%pivot != 0:
-                ref, pivot = scale_by_a_factor(aux_matrix, matrix_width, i, j, pivot, ref, aux_steps)
-            factor = aux_matrix[j][i] // aux_matrix[i][i]
-            for k in range(matrix_width):
-                aux_matrix[j][k] -= factor * aux_matrix[i][k]
-            aux_steps.append(("subtract", i, j, factor))
+            apply_row_elimination(aux_matrix, i, j, aux_steps, matrix_width, pivot)
     if not ignore_comments:
         aux_steps.append(("comment", "third step: normalization"))
     for i in range(num_stats):
@@ -101,6 +87,13 @@ def get_variable(value:str, var:str, remove_multiplier = False):
 def sort_variable(var):
     return (-1 if var[1][0] >= 0 else 1, var[0])
 
+def write_equation(equation, multiplier, first_sign = False):
+    st.write(f"writing equation for {multiplier}")
+    common = lcm(*[v[1][1] for v in equation])
+    all_negative = all(v[1][1] for v in equation)
+    if all_negative:
+        equation = [[v[0], [-v[1][0], v[1][1]]] for v in equation]
+
 def write_system_solution(matrix, num_stats, solution_introduction = None):
     total = len(matrix[0])
     head = [f"mt_{{{i + 1},{j + 1}}}" for i, j in combinations(range(num_stats), 2)] \
@@ -120,20 +113,9 @@ def write_system_solution(matrix, num_stats, solution_introduction = None):
             if free[1][0] != 0:
                 equation[kind].append(free)
         latex_code += depedent[0] + "="
-        pure_common = lcm(*[val[1][1] for val in equation["pure"]])
-        if len(equation["pure"]) > 1:
-            pure_part_open, pure_part_close = "p(", ")+"
-            if pure_common > 1:
-                pure_part_open = f"\\frac{{p}}{{{pure_common}}}("
-            latex_code += pure_part_open
-            latex_code += ''.join(value_format(var[1][0]) + var[0] for var in sorted(equation["pure"], key=sort_variable))
-            latex_code += pure_part_close
-        elif (q := equation['pure'][0][1][1]) != 1:
-            latex_code += f"\\frac{{{value_format(equation['pure'][0][1][0])}p}}{{{q}}}"
-        else:
-            latex_code += f"{value_format(equation['pure'][0][0])}p"
-        mixed_common = lcm(*[val[1][1] for val in equation["mixed"]])
-        stats_common = lcm(*[val[1][1] for val in equation["stats"]])
+        write_equation(equation["pure"], "p")
+        write_equation(equation["mixed"], "m", True)
+        write_equation(equation["stats"], "1", True)
         latex_code += "\\\\\n"
     latex_code += "$$"
     st.code(latex_code, language="latex")
