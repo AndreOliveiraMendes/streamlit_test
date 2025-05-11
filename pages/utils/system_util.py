@@ -80,23 +80,25 @@ def generate_auxiliar_matrix(num_stats: int) -> list[list[int]]:
 
 def value_format(value: int | str, extra: str = "") -> str:
     """
-    formata um valor inteiro/string para exibição nos passos do sage e em lugais em que havera multiplicações (salvo algumas exceções) 
+    Formata um valor inteiro ou string para exibição nos passos do SageMath,
+    especialmente quando há multiplicações (com exceções como fator 1 ou -1).
     
     Parâmetros:
-
     - value (int ou str): o valor a ser tratado
-    - extra (str) = "": um variavel extra para controle de exibição do sinal de multiplicação, se necessario, sendo nada exibido por padrão
+    - extra (str): sufixo adicional, como '*' ou outro, opcional
 
     Retorna:
-
-    - str: uma string formatada para uso
+    - str: uma string formatada para uso simbólico
     """
-    result = ""
+    sign, body = "", ""
     if isinstance(value, int):
-        result = ('+' if value > 0 else '-') + (str(abs(value)) + extra if abs(value) != 1 else '')
+        sign = '+' if value > 0 else '-'
+        body = str(abs(value)) + extra if abs(value) != 1 else ''
     else:
-        result = ('+' if not '-' in value else '-') + (value + extra if not value in ['1', '-1'] else '')
-    return result.replace("--", "+")
+        sign = '-' if '-' in value else '+'
+        clean_value = value.replace('-', '')
+        body = '' if value in ['1', '-1'] else clean_value + extra
+    return sign + body
 
 def decode_step(step: Step) -> str:
     """
