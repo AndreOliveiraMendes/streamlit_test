@@ -7,7 +7,7 @@ def write_extended_matrix_markdown(matrix, extended_matrix_introduction = None):
     header_size = len(matrix[0])
     header = ''.join(['c']*(header_size - 1) + [':c'])
     content = '\\\\\n'.join(['&'.join(map(str, row)) for row in matrix])
-    markdown = textwrap.dedent(f"""
+    code = textwrap.dedent(f"""
     $$
     \\left[\\begin{{array}}{{{header}}}
     {content}
@@ -15,8 +15,9 @@ def write_extended_matrix_markdown(matrix, extended_matrix_introduction = None):
     $$
     """).replace("\t", "").replace("    ", "").replace("&s", "&s_")
     if extended_matrix_introduction:
-        markdown = f"{extended_matrix_introduction}\n{markdown}"
+        markdown = f"{extended_matrix_introduction}\n{code}"
     st.code(markdown, language="latex")
+    return code
 
 def write_sage_steps(matrix, num_stats, sage_code_introduction = None, ignore_comments = True):
     variables = ['p', 'm'] + [f's{i}' for i in range(1, num_stats + 1)]
@@ -137,11 +138,15 @@ with st.expander("Sobre"):
 
 num_stats = st.number_input("Number of Stats", min_value=2, max_value=10, step=1, value=5, help="Número de atributos (stats) no sistema.")
 extended_matrix_introduction = st.text_input("Extended Matrix Introduction", value="the extended matrix is given by:", help="texto de apresentação da matriz estendida.")
+extended_matrix_visualization = st.checkbox("visualizar resultado final?")
 extended_sage_code_introduction = st.text_input("Sage Code Introduction", value="the sage code is given by:", help="texto de apresentação do codigo sage.")
 if st.button("gerar codigo"):
     extended_matrix = generate_extended_matrix(num_stats)
     with st.expander("Extended Matrix"):
-        write_extended_matrix_markdown(extended_matrix, extended_matrix_introduction)
+        code = write_extended_matrix_markdown(extended_matrix, extended_matrix_introduction)
+        if extended_matrix_visualization:
+            st.write(code)
+
     reduced_matrix = None
     with st.expander("Sage Code"):
         reduced_matrix = write_sage_steps(extended_matrix, num_stats, extended_sage_code_introduction, False)
