@@ -25,3 +25,7 @@ Run the Streamlit application with the following command:
 streamlit run app.py
 ```
 This will start a local server where you can interact with the application in your web browser.
+
+## Contributing
+
+👉 See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to contribute.
