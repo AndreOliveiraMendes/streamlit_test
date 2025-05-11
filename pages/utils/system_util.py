@@ -1,8 +1,18 @@
 from itertools import combinations
 from math import lcm
+from typing import Tuple, Literal, Union
+
+Step = Union[
+    Tuple[Literal["swap"], int, int],
+    Tuple[Literal["subtract"], int, int, int],
+    Tuple[Literal["multiply"], int, int],
+    Tuple[Literal["comment"], str],
+    Tuple[Literal["divide"], int, int]
+]
+
 def generate_extended_matrix(num_stats: int) -> list[list[str]]:
     """
-    gera a matrix estendida do sistema de equações decorendo do problem "n-{1,2}"
+    gera a matrix estendida do sistema de equações decorente do problem "n-{1,2}"
     
     Parâmetros:
 
@@ -34,7 +44,7 @@ def generate_extended_matrix(num_stats: int) -> list[list[str]]:
 
 def generate_auxiliar_matrix(num_stats: int) -> list[list[int]]:
     """
-    gera a matrix auxiliar do sistema de equações decorendo do problem "n-{1,2}"
+    gera a matrix auxiliar do sistema de equações decorente do problem "n-{1,2}"
     
     Parâmetros:
 
@@ -88,7 +98,7 @@ def value_format(value: int | str, extra: str = "") -> str:
         result = ('+' if not '-' in value else '-') + (value + extra if not value in ['1', '-1'] else '')
     return result.replace("--", "+")
 
-def decode_step(step: tuple) -> str:
+def decode_step(step: Step) -> str:
     """
     decodifica os passos gerados pela matrix auxiliar em linguagem compativel com editores simbolicos como o sagemath, os passos implementados são:
     - ("swap", i: int, j: int): operação de troca entre as linhas i e j
@@ -107,13 +117,13 @@ def decode_step(step: tuple) -> str:
     """
     if step[0] == "swap":
         i, j = step[1], step[2]
-        return "M[{i}], M[{j}] = M.row({j}), M.row({j})"
+        return f"M[{i}], M[{j}] = M.row({j}), M.row({j})"
     elif step[0] == "subtract":
         i, j, factor = step[1], step[2], step[3]
         return f"M[{j}] = M.row({j}){value_format(-factor, '*')}M.row({i})"
     elif step[0] == "multiply":
         i, factor = step[1], step[2]
-        return f"M[{i}] = f{value_format(factor, '*')}M.row({i})"
+        return f"M[{i}] = {value_format(factor, '*')}M.row({i})"
     elif step[0] == "comment":
         comment = step[1]
         return f"# {comment}"
@@ -123,7 +133,7 @@ def decode_step(step: tuple) -> str:
     else:
         raise NotImplementedError(f"Unknown step type: {step[0]}")
 
-def scale_by_a_factor(matrix: list[list[int]], i: int, j: int, steps: list[tuple], matrix_width: int | None = None, pivot: int | None = None, ref: int | None = None) -> tuple[int, int]:
+def scale_by_a_factor(matrix: list[list[int]], i: int, j: int, steps: list[Step], matrix_width: int | None = None, pivot: int | None = None, ref: int | None = None) -> tuple[int, int]:
     """
     efetua a sincronização da linha i com a linha j da matrix auxiliar a fim de evitar a divisão e eventuais problemas de precisão numerica
     
@@ -154,7 +164,7 @@ def scale_by_a_factor(matrix: list[list[int]], i: int, j: int, steps: list[tuple
         matrix[j][k] *= scale_ref
     return common_ground, common_ground
 
-def apply_row_elimination(matrix: list[list[int]], i: int, j: int, steps: list[tuple], matrix_width: int | None = None, pivot: int | None = None) -> None:
+def apply_row_elimination(matrix: list[list[int]], i: int, j: int, steps: list[Step], matrix_width: int | None = None, pivot: int | None = None) -> None:
     """
     aplica o processo de eliminação da linha j pela linha i, funciona tanto na subida quando na descida
     
@@ -173,7 +183,8 @@ def apply_row_elimination(matrix: list[list[int]], i: int, j: int, steps: list[t
     """
     matrix_width = len(matrix[i]) if matrix_width is None else matrix_width
     pivot = matrix[i][i] if pivot is None else pivot
-    if(ref := matrix[j][i]) == 0:
+    ref = matrix[j][i]
+    if ref == 0:
         return
     if ref%pivot != 0:
         ref, pivot = scale_by_a_factor(matrix, i, j, steps, matrix_width, pivot, ref)
