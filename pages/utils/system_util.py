@@ -72,8 +72,11 @@ def decode_step(step):
         return f"M[{i}] = {'-' if factor < 0 else ''}M.row({i}){'/' + str(abs(factor)) if abs(factor) != 1 else ''}"
     else:
         raise NotImplementedError(f"Unknown step type: {step[0]}")
-    
-def scale_by_a_factor(matrix, matrix_width, i, j, pivot, ref, steps):
+
+def scale_by_a_factor(matrix, i, j, steps, matrix_width = None, pivot = None, ref = None):
+    matrix_width = len(matrix[i]) if matrix_width is None else matrix_width
+    pivot = matrix[i][i] if pivot is None else pivot
+    ref = matrix[j][i] if ref is None else ref
     common_ground = lcm(ref, pivot)
     scale_ref = common_ground // ref
     scale_pivot = common_ground // pivot
@@ -83,3 +86,15 @@ def scale_by_a_factor(matrix, matrix_width, i, j, pivot, ref, steps):
         matrix[i][k] *= scale_pivot
         matrix[j][k] *= scale_ref
     return common_ground, common_ground
+
+def apply_row_elimination(matrix, i, j, steps, matrix_width = None, pivot = None):
+    matrix_width = len(matrix[i]) if matrix_width is None else matrix_width
+    pivot = matrix[i][i] if pivot is None else pivot
+    if(ref := matrix[j][i]) == 0:
+        return
+    if ref%pivot != 0:
+        ref, pivot = scale_by_a_factor(matrix, i, j, steps, matrix_width, pivot, ref)
+    factor = matrix[j][i] // matrix[i][i]
+    for k in range(matrix_width):
+        matrix[j][k] -= factor * matrix[i][k]
+    steps.append(("subtract", i, j, factor))
