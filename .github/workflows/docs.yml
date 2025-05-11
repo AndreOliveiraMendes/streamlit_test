@@ -30,7 +30,7 @@ jobs:
           else
              path_name="dev"
           fi
-          mkdir -p docs-html/$BRANCH_NAME
+          mkdir -p docs-html/$path_name
           pdoc pages/utils --output-dir docs-html/$path_name
 
       - name: Gerar doc da branch main (caso não seja ela)
