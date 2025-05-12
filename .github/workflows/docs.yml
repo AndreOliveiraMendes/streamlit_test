@@ -33,6 +33,7 @@ jobs:
 
           mkdir -p docs-html/$path_name
           pdoc pages/utils --output-dir docs-html/$path_name
+          cp .github/docs-template/redirect.html /tmp/redirect.html
 
       - name: Gerar doc da branch main (caso não seja ela)
         if: github.ref != 'refs/heads/main'
@@ -57,7 +58,7 @@ jobs:
           git status
           git branch -a
           tree -a
-          cp .github/docs-template/redirect.html docs-html/index.html
+          cp /tmp/redirect.html docs-html/index.html
 
       - name: Upload para GitHub Pages
         uses: actions/upload-pages-artifact@v3
