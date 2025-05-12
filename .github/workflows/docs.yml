@@ -55,14 +55,10 @@ jobs:
       - name: Copiar index.html customizado (redirect para /stable/)
         run: |
           BRANCH_NAME=${GITHUB_REF##*/}
-          echo $BRANCH_NAME
-          if [ $BRANCH_NAME = "main" ]; then
+          if [ $BRANCH_NAME = "dev" ]; then
               git fetch origin dev
               git checkout origin/dev
           fi
-          git status
-          git branch -a
-          tree -a
           cp .github/docs-template/redirect.html docs-html/index.html
         working-directory: ${{ github.workspace }}
 
