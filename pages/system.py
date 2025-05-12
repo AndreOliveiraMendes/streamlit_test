@@ -3,7 +3,8 @@ from pages.utils.system_util import generate_extended_matrix, generate_auxiliar_
 from math import gcd, lcm
 from itertools import combinations
 
-def write_extended_matrix_markdown(matrix:list[list[str]], extended_matrix_introduction: str | None = None) -> str:
+def write_extended_matrix_markdown(matrix:list[list[str]], extended_matrix_introduction: str = "") -> str:
+    markdown = extended_matrix_introduction
     header_size = len(matrix[0])
     header = ''.join(['c']*(header_size - 1) + [':c'])
     content = '\\\\\n'.join(['&'.join(map(str, row)) for row in matrix])
@@ -14,8 +15,9 @@ def write_extended_matrix_markdown(matrix:list[list[str]], extended_matrix_intro
     \\end{{array}}\\right]
     $$
     """).replace("\t", "").replace("    ", "").replace("&s", "&s_")
-    if extended_matrix_introduction:
-        markdown = f"{extended_matrix_introduction}\n{code}"
+    if markdown:
+        markdown += "\n"
+    markdown += code
     st.code(markdown, language="latex")
     return code
 
@@ -85,25 +87,33 @@ def get_variable(value:str, var:str, remove_multiplier: bool = False) -> tuple[l
     
     return [var, [num, den]], kind
 
-def sort_variable(var:list[str, list[int]]) -> int:
+def sort_variable(var:list[str, list[int]]) -> tuple[int, str]:
     return (-1 if var[1][0] >= 0 else 1, var[0])
 
 def write_equation(equation: list, multiplier:str, first_sign: bool = False):
-    st.write(f"writing equation for {multiplier}")
+    res = ""
+    if len(equation) == 0:
+        return res
     common = lcm(*[v[1][1] for v in equation])
-    all_negative = all(v[1][1] for v in equation)
+    all_negative = all(v[1][1] < 0 for v in equation)
     if all_negative:
         equation = [[v[0], [-v[1][0], v[1][1]]] for v in equation]
+    if common == 1 and len(equation) == 1:
+        v = equation[0]
+        sign = "-" if all_negative else ("+" if first_sign else "")
+        body = f"{v[1][0]}{multiplier.replace('1', '')}{v[0]}"
+        res = sign + body
+    st.write(res)
 
-def write_system_solution(matrix, num_stats, solution_introduction = None):
+def write_system_solution(matrix, num_stats:int, solution_introduction:str = "") -> str:
     total = len(matrix[0])
     head = [f"mt_{{{i + 1},{j + 1}}}" for i, j in combinations(range(num_stats), 2)] \
         + [f"pt_{{{i + 1}}}" for i in range(num_stats)] \
         + [f"s_{{{i + 1}}}" for i in range(num_stats)]
-    latex_code = ""
-    if solution_introduction is not None:
-        latex_code += f"{solution_introduction}\n\n"
-    latex_code += "$$\\begin{cases}\n"
+    markdown = solution_introduction
+    if markdown:
+        markdown += "\n"
+    latex_code = "$$\\begin{cases}\n"
     for i in range(num_stats):
         depedent, _ = get_variable(matrix[i][i], head[i])
         equation = {"pure":[], "mixed":[], "stats":[]}
@@ -119,7 +129,6 @@ def write_system_solution(matrix, num_stats, solution_introduction = None):
         write_equation(equation["stats"], "1", True)
         latex_code += "\\\\\n"
     latex_code += "$$"
-    st.code(latex_code, language="latex")
 
 st.title("System")
 
