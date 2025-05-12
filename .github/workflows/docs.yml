@@ -38,7 +38,7 @@ jobs:
         if: github.ref != 'refs/heads/main'
         run: |
           git fetch origin main
-          git checkout main origin/main
+          git checkout origin/main
           mkdir -p docs-html/stable
           pdoc pages/utils --output-dir docs-html/stable
         working-directory: ${{ github.workspace }}
@@ -47,7 +47,7 @@ jobs:
         if: github.ref != 'refs/heads/dev'
         run: |
           git fetch origin dev
-          git checkout dev origin/dev
+          git checkout origin/dev
           mkdir -p docs-html/dev
           pdoc pages/utils --output-dir docs-html/dev
         working-directory: ${{ github.workspace }}
