@@ -55,6 +55,7 @@ jobs:
       - name: Copiar index.html customizado (redirect para /stable/)
         run: |
           BRANCH_NAME=${GITHUB_REF##*/}
+          echo $BRANCH_NAME
           if [ $BRANCH_NAME = "main" ]; then
               git fetch origin dev
               git checkout origin/dev
