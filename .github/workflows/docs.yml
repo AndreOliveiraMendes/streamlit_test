@@ -56,12 +56,14 @@ jobs:
         run: |
           BRANCH_NAME=${GITHUB_REF##*/}
           if [ $BRANCH_NAME = "main" ]; then
-              git checkout dev origin/dev
+              git fetch origin dev
+              git checkout origin/dev
           fi
           git status
           git branch -a
           tree -a
           cp .github/docs-template/redirect.html docs-html/index.html
+        working-directory: ${{ github.workspace }}
 
       - name: Upload para GitHub Pages
         uses: actions/upload-pages-artifact@v3
