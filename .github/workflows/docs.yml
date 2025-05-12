@@ -38,7 +38,7 @@ jobs:
         if: github.ref != 'refs/heads/main'
         run: |
           git fetch origin main
-          git checkout -b main origin/main
+          git checkout main origin/main
           mkdir -p docs-html/stable
           pdoc pages/utils --output-dir docs-html/stable
         working-directory: ${{ github.workspace }}
@@ -47,7 +47,7 @@ jobs:
         if: github.ref != 'refs/heads/dev'
         run: |
           git fetch origin dev
-          git checkout -b dev origin/dev
+          git checkout dev origin/dev
           mkdir -p docs-html/dev
           pdoc pages/utils --output-dir docs-html/dev
         working-directory: ${{ github.workspace }}
@@ -56,7 +56,7 @@ jobs:
         run: |
           BRANCH_NAME=${GITHUB_REF##*/}
           if [ $BRANCH_NAME = "main" ]; then
-              git checkout -b dev origin/dev
+              git checkout dev origin/dev
           fi
           git status
           git branch -a
