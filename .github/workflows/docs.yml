@@ -54,7 +54,7 @@ jobs:
 
       - name: Copiar index.html customizado (redirect para /stable/)
         run: |
-          ls -a
+          tree -a
           cp .github/docs-template/redirect.html docs-html/index.html
 
       - name: Upload para GitHub Pages
