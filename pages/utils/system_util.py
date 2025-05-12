@@ -1,6 +1,6 @@
 from itertools import combinations
 from math import lcm
-from typing import Tuple, Literal, Union
+from typing import overload, Tuple, Literal, Union
 
 Step = Union[
     Tuple[Literal["swap"], int, int],
@@ -99,7 +99,31 @@ def value_format(value: int | str, extra: str = "") -> str:
         clean_value = value.replace('-', '')
         body = '' if value in ['1', '-1'] else clean_value + extra
     return sign + body
-
+@overload
+def decode_step(step: tuple[Literal["swap"], int, int]) -> str:
+    """
+    swap
+    """
+@overload
+def decode_step(step: tuple[Literal["subtract"], int, int, int]) -> str:
+    """
+    subtract
+    """
+@overload
+def decode_step(step: tuple[Literal["multiply"], int, int]) -> str:
+    """
+    multiply
+    """
+@overload
+def decode_step(step: tuple[Literal["divide"], int, int]) -> str:
+    """
+    divide
+    """
+@overload
+def decode_step(step: tuple[Literal["comment"], str]) -> str:
+    """
+    comment
+    """
 def decode_step(step: Step) -> str:
     """
     decodifica os passos gerados pela matrix auxiliar em linguagem compativel com editores simbolicos como o sagemath, os passos implementados são:
