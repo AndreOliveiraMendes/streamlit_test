@@ -3,7 +3,7 @@ from pages.utils.system_util import generate_extended_matrix, generate_auxiliar_
 from math import gcd, lcm
 from itertools import combinations
 
-def write_extended_matrix_markdown(matrix, extended_matrix_introduction = None):
+def write_extended_matrix_markdown(matrix:list[list[str]], extended_matrix_introduction: str | None = None) -> str:
     header_size = len(matrix[0])
     header = ''.join(['c']*(header_size - 1) + [':c'])
     content = '\\\\\n'.join(['&'.join(map(str, row)) for row in matrix])
@@ -19,7 +19,7 @@ def write_extended_matrix_markdown(matrix, extended_matrix_introduction = None):
     st.code(markdown, language="latex")
     return code
 
-def write_sage_steps(matrix, num_stats, sage_code_introduction = None, ignore_comments = True):
+def write_sage_steps(matrix:list[list[int]], num_stats:int, sage_code_introduction: str | None = None, ignore_comments: bool = True) -> list[list[str]]:
     variables = ['p', 'm'] + [f's{i}' for i in range(1, num_stats + 1)]
     sage_variables_definition = f"var('{' '.join(variables)}')"
     aux = ',\n    '.join([f"[{', '.join(row)}]" for row in matrix])
@@ -72,7 +72,7 @@ def write_sage_steps(matrix, num_stats, sage_code_introduction = None, ignore_co
     st.code(final_sage_code, language="markdown")
     return aux_matrix
 
-def get_variable(value:str, var:str, remove_multiplier = False):
+def get_variable(value:str, var:str, remove_multiplier: bool = False) -> tuple[list, str]:
     kind = "pure" if "p" in var else ("mixed" if "m" in var else "stats")
     if remove_multiplier:
         var = var.replace("p", "").replace("m", "")
@@ -85,10 +85,10 @@ def get_variable(value:str, var:str, remove_multiplier = False):
     
     return [var, [num, den]], kind
 
-def sort_variable(var):
+def sort_variable(var:list[str, list[int]]) -> int:
     return (-1 if var[1][0] >= 0 else 1, var[0])
 
-def write_equation(equation, multiplier, first_sign = False):
+def write_equation(equation: list, multiplier:str, first_sign: bool = False):
     st.write(f"writing equation for {multiplier}")
     common = lcm(*[v[1][1] for v in equation])
     all_negative = all(v[1][1] for v in equation)
