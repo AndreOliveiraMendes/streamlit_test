@@ -182,7 +182,7 @@ num_stats = st.number_input("Number of Stats", min_value=2, max_value=10, step=1
 extended_matrix_introduction = st.text_input("Extended Matrix Introduction", value="the extended matrix is given by:", help="texto de apresentação da matriz estendida.")
 extended_matrix_visualization = st.checkbox("visualizar resultado final?",key=0)
 extended_sage_code_introduction = st.text_input("Sage Code Introduction", value="the sage code is given by:", help="texto de apresentação do codigo sage.")
-solution_introduction = st.text_input("solution inntroduction", value="the solution is given by:")
+solution_introduction = st.text_input("solution inntroduction", value="the solution is given by:", help="texto de apresentação da solução do sistema")
 solution_visualization = st.checkbox("visualizar resultado final?",key=1)
 if st.button("gerar codigo"):
     extended_matrix = generate_extended_matrix(num_stats)
