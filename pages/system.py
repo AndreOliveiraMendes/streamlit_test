@@ -90,13 +90,16 @@ def get_variable(value:str, var:str, remove_multiplier: bool = False) -> tuple[l
 def sort_variable(var:list[str, list[int]]) -> tuple[int, str]:
     return (-1 if var[1][0] >= 0 else 1, var[0])
 
+def write_equation_formater(num: int) -> str:
+    return str(num) if num not in [-1, 1] else f"{'' if num == 1 else '-'}"
+
 def get_value(i: int, v: list[str, list[int, int]], m:int = 1) -> str:
     sign = ''
     if v[1][0] >= 0:
         sign += '+' if i > 0 else ''
     else:
         sign += '-'
-    body = f"{abs(v[1][0]*(m//v[1][1]))}{v[0]}"
+    body = f"{write_equation_formater(abs(v[1][0]*(m//v[1][1])))}{v[0]}"
     return sign + body
 
 def write_equation(equation: list, multiplier:str, first_sign: bool = False):
@@ -111,7 +114,7 @@ def write_equation(equation: list, multiplier:str, first_sign: bool = False):
     if common == 1:
         if len(equation) == 1:
             v = equation[0]
-            body = f"{v[1][0]}{multiplier.replace('1', '')}{v[0]}"
+            body = f"{write_equation_formater(v[1][0])}{multiplier.replace('1', '')}{v[0]}"
             res = sign + body
         else:
             right = ''.join(get_value(i, v) for i, v in enumerate(sorted(equation, key=sort_variable)))
@@ -120,7 +123,7 @@ def write_equation(equation: list, multiplier:str, first_sign: bool = False):
     else:
         if len(equation) == 1:
             v = equation[0]
-            uper = f"{v[1][0]}{multiplier.replace('1', '')}{v[0]}"
+            uper = f"{write_equation_formater(v[1][0])}{multiplier.replace('1', '')}{v[0]}"
             lower = f"{v[1][1]}"
             body = f"\\frac{{{uper}}}{{{lower}}}"
             res = sign + body
