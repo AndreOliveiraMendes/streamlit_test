@@ -33,13 +33,12 @@ jobs:
 
           mkdir -p docs-html/$path_name
           pdoc pages/utils --output-dir docs-html/$path_name
-          cp .github/docs-template/redirect.html /tmp/redirect.html
 
       - name: Gerar doc da branch main (caso não seja ela)
         if: github.ref != 'refs/heads/main'
         run: |
           git fetch origin main
-          git checkout -b main origin/main
+          git checkout origin/main
           mkdir -p docs-html/stable
           pdoc pages/utils --output-dir docs-html/stable
         working-directory: ${{ github.workspace }}
@@ -48,17 +47,23 @@ jobs:
         if: github.ref != 'refs/heads/dev'
         run: |
           git fetch origin dev
-          git checkout -b dev origin/dev
+          git checkout origin/dev
           mkdir -p docs-html/dev
           pdoc pages/utils --output-dir docs-html/dev
         working-directory: ${{ github.workspace }}
 
       - name: Copiar index.html customizado (redirect para /stable/)
         run: |
+          BRANCH_NAME=${GITHUB_REF##*/}
+          if [ $BRANCH_NAME = "main" ]; then
+              git fetch origin dev
+              git checkout origin/dev
+          fi
           git status
           git branch -a
           tree -a
-          cp /tmp/redirect.html docs-html/index.html
+          cp .github/docs-template/redirect.html docs-html/index.html
+        working-directory: ${{ github.workspace }}
 
       - name: Upload para GitHub Pages
         uses: actions/upload-pages-artifact@v3
