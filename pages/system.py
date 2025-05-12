@@ -194,6 +194,7 @@ if st.button("gerar codigo"):
     reduced_matrix = None
     with st.expander("Sage Code"):
         reduced_matrix = write_sage_steps(extended_matrix, num_stats, extended_sage_code_introduction, False)
+
     with st.expander("System Solution"):
         code = write_system_solution(reduced_matrix, num_stats, solution_introduction)
         if solution_visualization:
