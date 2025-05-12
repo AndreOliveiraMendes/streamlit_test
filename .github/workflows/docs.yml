@@ -53,7 +53,9 @@ jobs:
         working-directory: ${{ github.workspace }}
 
       - name: Copiar index.html customizado (redirect para /stable/)
-        run: cp .github/docs-template/redirect.html docs-html/index.html
+        run: |
+          ls -a
+          cp .github/docs-template/redirect.html docs-html/index.html
 
       - name: Upload para GitHub Pages
         uses: actions/upload-pages-artifact@v3
