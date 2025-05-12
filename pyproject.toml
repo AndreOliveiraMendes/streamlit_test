@@ -1,0 +1,8 @@
+[project]
+name = "meu_projeto_streamlit"
+version = "0.1.0"
+description = "Um app feito com Streamlit"
+requires-python = ">=3.10"
+dependencies = [
+    "streamlit>=1.32.0",
+]

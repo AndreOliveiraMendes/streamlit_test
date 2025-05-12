@@ -26,5 +26,6 @@ streamlit run app.py
 ```
 This will start a local server where you can interact with the application in your web browser.
 
-## Contribution Guidelines
-This project is intended for experimentation and learning. Feel free to fork the repository, try out new ideas, and build upon it!
+## Contributing
+
+👉 See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to contribute.
