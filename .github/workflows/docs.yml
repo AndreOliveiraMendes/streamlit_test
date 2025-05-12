@@ -52,9 +52,8 @@ jobs:
           pdoc pages/utils --output-dir docs-html/dev
         working-directory: ${{ github.workspace }}
 
-      - name: Criar index.html (redirect para /stable/)
-        run: |
-          echo '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0; url=./stable/" /><title>Redirecting...</title></head><body><p>Redirecting to <a href="./stable/">stable</a>...</p></body></html>' > docs-html/index.html
+      - name: Copiar index.html customizado (redirect para /stable/)
+        run: cp .github/docs-template/redirect.html docs-html/index.html
 
       - name: Upload para GitHub Pages
         uses: actions/upload-pages-artifact@v3
