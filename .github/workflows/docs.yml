@@ -25,37 +25,13 @@ jobs:
       - name: Instalar streamlit
         run: pip install streamlit
 
-      - name: Gerar doc da branch atual
-        run: |
-          BRANCH_NAME=${GITHUB_REF##*/}
-          if [ $BRANCH_NAME = "main" ]; then
-             path_name="stable"
-          else
-             path_name="dev"
-          fi
-
-          mkdir -p docs-html/$path_name/ui
-          mkdir -p docs-html/$path_name/utilitarios
-          pdoc pages/utils --output-dir docs-html/$path_name/utilitarios
-          mkdir tmp
-          mv pages/utils tmp/utils
-          pdoc pages/ --output-dir docs-hmtl/$path_name/ui
-          mv tmp/utils pages/utils
-          rmdir tmp
-
       - name: Gerar doc da branch main (caso não seja ela)
         if: github.ref != 'refs/heads/main'
         run: |
           git fetch origin main
           git checkout origin/main
-          mkdir -p docs-html/stable/ui
-          mkdir -p docs-html/stable/utilitarios
-          pdoc pages/utils --output-dir docs-html/stable/utilitarios
-          mkdir tmp
-          mv pages/utils tmp/utils
-          pdoc pages/ --output-dir docs-html/stable/ui
-          mv tmp/utils pages/utils
-          rmdir tmp
+          mkdir -p docs-html/stable
+          pdoc pages/utils --output-dir docs-html/stable
         working-directory: ${{ github.workspace }}
 
       - name: Gerar doc da branch dev (caso não seja ela)
@@ -63,14 +39,8 @@ jobs:
         run: |
           git fetch origin dev
           git checkout origin/dev
-          mkdir -p docs-html/dev/ui
-          mkdir -p docs-html/dev/utilitarios
-          pdoc pages/utils --output-dir docs-html/dev/utilitarios
-          mkdir tmp
-          mv pages/utils tmp/utils
-          pdoc pages/ --output-dir docs-html/dev/ui
-          mv tmp/utils pages/utils
-          rmdir tmp
+          mkdir -p docs-html/dev
+          pdoc pages/utils --output-dir docs-html/dev
         working-directory: ${{ github.workspace }}
 
       - name: Copiar index.html customizado (redirect para /stable/)
@@ -81,8 +51,6 @@ jobs:
               git checkout origin/dev
           fi
           cp .github/docs-template/redirect.html docs-html/index.html
-          cp .github/docs-template/stable.html docs-html/stable/index.html
-          cp .github/docs-template/unstable.html docs-html/dev/index.html
         working-directory: ${{ github.workspace }}
 
       - name: Upload para GitHub Pages
