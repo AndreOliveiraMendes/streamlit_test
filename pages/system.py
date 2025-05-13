@@ -175,7 +175,8 @@ if st.button("gerar codigo"):
     with st.expander("Extended Matrix"):
         code = write_extended_matrix_markdown(extended_matrix, extended_matrix_introduction)
         if extended_matrix_visualization:
-            st.write(code)
+            code = code.replace("$$", "")
+            st.latex(code)
 
     reduced_matrix = None
     with st.expander("Sage Code"):
@@ -184,10 +185,8 @@ if st.button("gerar codigo"):
     with st.expander("System Solution"):
         code = write_system_solution(reduced_matrix, num_stats, solution_introduction)
         if solution_visualization:
-            code = code.replace("$$\\begin{cases}", "$$\n\\left\\{\\begin{array}{cc}")
-            code = code.replace("\\end{cases}$$", "\\end{array}\\right.\n$$")
-            code = code.replace("=", "=&")
-            st.write(code)
+            code = code.replace("$$", "")
+            st.latex(code)
     
     with st.expander("verification"):
         write_system_verification(reduced_matrix, num_stats, verification_introduction)
