@@ -140,6 +140,14 @@ def write_system_solution(matrix:list[list[str]], num_stats:int, solution_introd
     st.code(markdown, language="latex")
     return latex_code
 
+def write_system_verification(matrix:list[list[str]], num_stats:int, verification_introduction:str = "") -> str:
+    converted = convert_matrix(matrix, num_stats, True)
+    markdown = verification_introduction
+    if markdown:
+        markdown += "\n\n"
+    head = ''.join(['c'] + ['c']*sum(len(eq) for eq in converted[0]))
+    latex_code = f"\\left\\begin{{array}}{{{head}}}\n"
+
 st.title("System")
 
 with st.expander("Sobre"):
@@ -161,6 +169,7 @@ extended_matrix_visualization = st.checkbox("visualizar resultado final?",key=0)
 extended_sage_code_introduction = st.text_input("Sage Code Introduction", value="the sage code is given by:", help="texto de apresentação do codigo sage.")
 solution_introduction = st.text_input("solution inntroduction", value="the solution is given by:", help="texto de apresentação da solução do sistema")
 solution_visualization = st.checkbox("visualizar resultado final?",key=1)
+verification_introduction = st.text_input("verification introduction", value="you can verify the solution using the following things", help="texto de apresentação da verificação")
 if st.button("gerar codigo"):
     extended_matrix = generate_extended_matrix(num_stats)
     with st.expander("Extended Matrix"):
@@ -180,3 +189,5 @@ if st.button("gerar codigo"):
             code = code.replace("=", "=&")
             st.write(code)
     
+    with st.expander("verification"):
+        write_system_verification(reduced_matrix, num_stats, verification_introduction)
