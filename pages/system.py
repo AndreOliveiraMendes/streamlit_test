@@ -1,5 +1,5 @@
 import streamlit as st, textwrap
-from pages.utils.system_util import generate_extended_matrix, generate_auxiliar_matrix, decode_step, apply_row_elimination
+from pages.utils.system_util import generate_extended_matrix, generate_auxiliar_matrix, decode_step, apply_row_elimination, convert_matrix
 from math import gcd, lcm
 from itertools import combinations
 
@@ -74,19 +74,6 @@ def write_sage_steps(matrix:list[list[int]], num_stats:int, sage_code_introducti
     st.code(final_sage_code, language="markdown")
     return aux_matrix
 
-def get_variable(value:str, var:str, remove_multiplier: bool = False) -> tuple[list, str]:
-    kind = "pure" if "p" in var else ("mixed" if "m" in var else "stats")
-    if remove_multiplier:
-        var = var.replace("p", "").replace("m", "")
-    parts = list(value.split("/"))
-    num, den = 0, 0
-    if len(parts) == 2:
-        num, den = map(int, parts)
-    else:
-        num, den = int(parts[0]), 1
-    
-    return [var, [num, den]], kind
-
 def sort_variable(var:list[str, list[int]]) -> tuple[int, str]:
     return (-1 if var[1][0] >= 0 else 1, var[0])
 
@@ -135,28 +122,18 @@ def write_equation(equation: list, multiplier:str, first_sign: bool = False):
             res = sign + body
     return res
 
-def write_system_solution(matrix, num_stats:int, solution_introduction:str = "") -> str:
-    total = len(matrix[0])
-    head = [f"mt_{{{i + 1},{j + 1}}}" for i, j in combinations(range(num_stats), 2)] \
-        + [f"pt_{{{i + 1}}}" for i in range(num_stats)] \
-        + [f"s_{{{i + 1}}}" for i in range(num_stats)]
+def write_system_solution(matrix:list[list[str]], num_stats:int, solution_introduction:str = "") -> str:
+    converted = convert_matrix(matrix, num_stats)
     markdown = solution_introduction
     if markdown:
-        markdown += "\n"
+        markdown += "\n\n"
     latex_code = "$$\\begin{cases}\n"
-    for i in range(num_stats):
-        depedent, _ = get_variable(matrix[i][i], head[i])
-        equation = {"pure":[], "mixed":[], "stats":[]}
-        for j in range(num_stats, total):
-            free, kind = get_variable(matrix[i][j], head[j], True)
-            if kind in ["pure", "mixed"]:
-                free[1][0] *= -1
-            if free[1][0] != 0:
-                equation[kind].append(free)
+    for i, row in enumerate(converted):
+        depedent, equations = row["depedent"], row["equations"]
         latex_code += depedent[0] + "="
-        latex_code += write_equation(equation["pure"], "p")
-        latex_code += write_equation(equation["mixed"], "m", True)
-        latex_code += write_equation(equation["stats"], "1", True)
+        latex_code += write_equation(equations["pure"], "p")
+        latex_code += write_equation(equations["mixed"], "m", True)
+        latex_code += write_equation(equations["stats"], "1", True)
         latex_code += ("\\\\" if i < num_stats - 1 else "") + "\n"
     latex_code += "\\end{cases}$$"
     markdown += latex_code
