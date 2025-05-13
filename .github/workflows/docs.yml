@@ -36,7 +36,7 @@ jobs:
           pdoc pages/utils --output-dir docs-html/$path_name/utilitarios
           mkdir tmp
           mv pages/utils tmp/utils
-          pdoc pages --output-dir docs-hmtl/$path_name/ui
+          pdoc pages/ --output-dir docs-hmtl/$path_name/ui
           mv tmp/utils pages/utils
           rmdir tmp
 
@@ -50,7 +50,7 @@ jobs:
           pdoc pages/utils --output-dir docs-html/stable/utilitarios
           mkdir tmp
           mv pages/utils tmp/utils
-          pdoc pages --output-dir docs-html/stable/ui
+          pdoc pages/ --output-dir docs-html/stable/ui
           mv tmp/utils pages/utils
           rmdir tmp
         working-directory: ${{ github.workspace }}
@@ -65,7 +65,7 @@ jobs:
           pdoc pages/utils --output-dir docs-html/dev/utilitarios
           mkdir tmp
           mv pages/utils tmp/utils
-          pdoc pages --output-dir docs-html/dev/ui
+          pdoc pages/ --output-dir docs-html/dev/ui
           mv tmp/utils pages/utils
           rmdir tmp
         working-directory: ${{ github.workspace }}
