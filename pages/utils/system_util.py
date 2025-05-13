@@ -223,6 +223,22 @@ def get_variable(value:str, var:str, remove_multiplier: bool = False) -> list[li
         num, den = int(parts[0]), 1  
     return [var, [num, den]], kind
 
+def get_matrix_head(num_stats:int) -> list[str]:
+    """
+    constroi o cabechalho da matrix
+
+    Parâmetros:
+
+    - num_stas (int): o numero de atributos
+
+    Returns:
+
+    - list[str]: uma lista de strings.
+    """
+    return [f"mt_{{{i + 1},{j + 1}}}" for i, j in combinations(range(num_stats), 2)] \
+        + [f"pt_{{{i + 1}}}" for i in range(num_stats)] \
+        + [f"s_{{{i + 1}}}" for i in range(num_stats)]
+
 def convert_matrix(matrix:list[list[str]], num_stats:int, ignore_zero: bool = False) -> list[dict]:
     """
     efetua a conversão de uma matrix em uma lista de dicionario numa fuma de variavel depedentes e variavels indepedents e atributos
@@ -240,9 +256,7 @@ def convert_matrix(matrix:list[list[str]], num_stats:int, ignore_zero: bool = Fa
     """
     converted = []
     total = len(matrix[0])
-    head = [f"mt_{{{i + 1},{j + 1}}}" for i, j in combinations(range(num_stats), 2)] \
-        + [f"pt_{{{i + 1}}}" for i in range(num_stats)] \
-        + [f"s_{{{i + 1}}}" for i in range(num_stats)]
+    head = get_matrix_head(num_stats)
     for i in range(num_stats):
         row = {}
         depedent, _ = get_variable(matrix[i][i], head[i])
