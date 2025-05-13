@@ -31,7 +31,7 @@ jobs:
           git fetch origin main
           git checkout origin/main
           mkdir -p docs-html/stable
-          pdoc pages/utils --output-dir docs-html/stable
+          pdoc pages --output-dir docs-html/stable
         working-directory: ${{ github.workspace }}
 
       - name: Gerar doc da branch dev (caso não seja ela)
