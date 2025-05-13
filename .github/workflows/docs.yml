@@ -22,10 +22,7 @@ jobs:
       - name: Instalar pdoc
         run: pip install pdoc
 
-      - name: Instalar streamlit
-        run: pip install streamlit
-
-          - name: Gerar doc da branch atual
+      - name: Gerar doc da branch atual
         run: |
           BRANCH_NAME=${GITHUB_REF##*/}
           if [ $BRANCH_NAME = "main" ]; then
