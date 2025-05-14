@@ -187,7 +187,7 @@ if st.button("gerar codigo"):
 
     with st.expander("System Solution"):
         code, markdown = write_system_solution(reduced_matrix, num_stats, solution_introduction)
-        final_markdown += "\n" + markdown
+        final_markdown += "\n\n" + markdown
         if solution_visualization:
             code = code.replace("$$", "")
             st.latex(code)
