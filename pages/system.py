@@ -1,7 +1,6 @@
 import streamlit as st, textwrap
 from pages.utils.system_util import generate_extended_matrix, generate_auxiliar_matrix, decode_step, apply_row_elimination, convert_matrix
 from math import gcd, lcm
-from itertools import combinations
 
 def write_extended_matrix_markdown(matrix:list[list[str]], extended_matrix_introduction: str = "") -> str:
     markdown = extended_matrix_introduction
