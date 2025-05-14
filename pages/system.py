@@ -1,4 +1,4 @@
-import streamlit as st, textwrap
+import streamlit as st, textwrap, re
 from pages.utils.system_util import generate_extended_matrix, generate_auxiliar_matrix, decode_step, apply_row_elimination, convert_matrix
 from math import gcd, lcm
 
@@ -13,7 +13,9 @@ def write_extended_matrix_markdown(matrix:list[list[str]], extended_matrix_intro
     {content}
     \\end{{array}}\\right]
     $$
-    """).replace("\t", "").replace("    ", "").replace("&s", "&s_")
+    """).replace("\t", "\t")
+    code = re.sub(" ( )+", "", code)
+    code = re.sub("s(\d+)", "s_{\g<1>}", code)
     if markdown:
         markdown += "\n"
     markdown += code
@@ -176,7 +178,6 @@ if st.button("gerar codigo"):
         if extended_matrix_visualization:
             code = code.replace("$$", "")
             st.latex(code)
-
     reduced_matrix = None
     with st.expander("Sage Code"):
         reduced_matrix = write_sage_steps(extended_matrix, num_stats, extended_sage_code_introduction, False)
