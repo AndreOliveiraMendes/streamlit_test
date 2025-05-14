@@ -2,7 +2,7 @@ import streamlit as st, textwrap, re
 from pages.utils.system_util import generate_extended_matrix, generate_auxiliar_matrix, decode_step, apply_row_elimination, convert_matrix
 from math import gcd, lcm
 
-def write_extended_matrix_markdown(matrix:list[list[str]], extended_matrix_introduction: str = "") -> str:
+def write_extended_matrix_markdown(matrix:list[list[str]], extended_matrix_introduction: str = "") -> tuple[str, str]:
     markdown = extended_matrix_introduction
     header_size = len(matrix[0])
     header = ''.join(['c']*(header_size - 1) + [':c'])
@@ -20,9 +20,9 @@ def write_extended_matrix_markdown(matrix:list[list[str]], extended_matrix_intro
         markdown += "\n"
     markdown += code
     st.code(markdown, language="latex")
-    return code
+    return code, markdown
 
-def write_sage_steps(matrix:list[list[int]], num_stats:int, sage_code_introduction: str | None = None, ignore_comments: bool = True) -> list[list[str]]:
+def write_sage_steps(matrix:list[list[int]], num_stats:int, sage_code_introduction: str | None = None, ignore_comments: bool = True) -> tuple[list[list[str]], str]:
     variables = ['p', 'm'] + [f's{i}' for i in range(1, num_stats + 1)]
     sage_variables_definition = f"var('{' '.join(variables)}')"
     aux = ',\n    '.join([f"[{', '.join(row)}]" for row in matrix])
@@ -73,7 +73,7 @@ def write_sage_steps(matrix:list[list[int]], num_stats:int, sage_code_introducti
         final_sage_code += f"{sage_code_introduction}\n\n"
     final_sage_code += f"```sage\n{sage_variables_definition}\n{sage_matrix_definition}\n{sage_step}\nM\n```"
     st.code(final_sage_code, language="markdown")
-    return aux_matrix
+    return aux_matrix, final_sage_code
 
 def sort_variable(var:list[str, list[int]]) -> tuple[int, str]:
     return (-1 if var[1][0] >= 0 else 1, var[0])
@@ -123,7 +123,7 @@ def write_equation(equation: list, multiplier:str, first_sign: bool = False):
             res = sign + body
     return res
 
-def write_system_solution(matrix:list[list[str]], num_stats:int, solution_introduction:str = "") -> str:
+def write_system_solution(matrix:list[list[str]], num_stats:int, solution_introduction:str = "") -> tuple[str, str]:
     converted = convert_matrix(matrix, num_stats)
     markdown = solution_introduction
     if markdown:
@@ -139,7 +139,7 @@ def write_system_solution(matrix:list[list[str]], num_stats:int, solution_introd
     latex_code += "\\end{cases}$$"
     markdown += latex_code
     st.code(markdown, language="latex")
-    return latex_code
+    return latex_code, markdown
 
 def write_system_verification(matrix:list[list[str]], num_stats:int, verification_introduction:str = "") -> str:
     converted = convert_matrix(matrix, num_stats, True)
@@ -173,20 +173,27 @@ solution_visualization = st.checkbox("visualizar resultado final?",key=1)
 verification_introduction = st.text_input("verification introduction", value="you can verify the solution using the following things", help="texto de apresentação da verificação")
 if st.button("gerar codigo"):
     extended_matrix = generate_extended_matrix(num_stats)
+    final_markdown = ""
     with st.expander("Extended Matrix"):
-        code = write_extended_matrix_markdown(extended_matrix, extended_matrix_introduction)
+        code, markdown = write_extended_matrix_markdown(extended_matrix, extended_matrix_introduction)
+        final_markdown = markdown
         if extended_matrix_visualization:
             code = code.replace("$$", "")
             st.latex(code)
     reduced_matrix = None
     with st.expander("Sage Code"):
-        reduced_matrix = write_sage_steps(extended_matrix, num_stats, extended_sage_code_introduction, False)
+        reduced_matrix, markdown = write_sage_steps(extended_matrix, num_stats, extended_sage_code_introduction, False)
+        final_markdown += "\n" + markdown
 
     with st.expander("System Solution"):
-        code = write_system_solution(reduced_matrix, num_stats, solution_introduction)
+        code, markdown = write_system_solution(reduced_matrix, num_stats, solution_introduction)
+        final_markdown += "\n" + markdown
         if solution_visualization:
             code = code.replace("$$", "")
             st.latex(code)
     
     with st.expander("verification"):
         write_system_verification(reduced_matrix, num_stats, verification_introduction)
+
+    with st.expander("final markdown code"):
+        st.code(final_markdown, language="markdown")
