@@ -239,16 +239,16 @@ def get_matrix_head(num_stats:int) -> list[str]:
         + [f"pt_{{{i + 1}}}" for i in range(num_stats)] \
         + [f"s_{{{i + 1}}}" for i in range(num_stats)]
 
-def convert_matrix(matrix:list[list[str]], num_stats:int, ignore_zero: bool = False) -> list[dict]:
+def convert_matrix(matrix:list[list[str]], num_stats:int, include_zero: bool = False) -> list[dict]:
     """
     efetua a conversão de uma matrix em uma lista de dicionario numa fuma de variavel depedentes e variavels indepedents e atributos
-    se ignore_zero for setado como verdadeiro a função tambem passara a exibir variaveis livres/atributos com valor nulo
+    se include_zero for setado como verdadeiro a função tambem passara a exibir variaveis livres/atributos com valor nulo
 
     Parâmetros:
 
     - matrix (list[list[str]]): a matrix a ser convertida
     - num_stats (int): o numero de atributos
-    - ignore_zero (bool): adiciona elementos mesmo que seus valores sejam 0
+    - include_zero (bool): adiciona elementos mesmo que seus valores sejam 0
 
     Retorna:
 
@@ -265,7 +265,7 @@ def convert_matrix(matrix:list[list[str]], num_stats:int, ignore_zero: bool = Fa
             free, kind = get_variable(matrix[i][j], head[j], True)
             if kind in ["pure", "mixed"]:
                 free[1][0] *= -1
-            if free[1][0] != 0 or ignore_zero:
+            if free[1][0] != 0 or include_zero:
                 equations[kind].append(free)
         row["depedent"] = depedent
         row["equations"] = equations
