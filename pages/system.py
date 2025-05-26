@@ -7,18 +7,16 @@ def write_extended_matrix_markdown(matrix:list[list[str]], extended_matrix_intro
     header_size = len(matrix[0])
     header = ''.join(['c']*(header_size - 1) + [':c'])
     content = '\\\\\n'.join(['&'.join(map(str, row)) for row in matrix])
-    code = textwrap.dedent(f"""
-    $$
-    \\left[\\begin{{array}}{{{header}}}
+    code = textwrap.dedent(
+    f"""\\left[\\begin{{array}}{{{header}}}
     {content}
-    \\end{{array}}\\right]
-    $$
-    """).replace("\t", "\t")
+    \\end{{array}}\\right]"""
+    ).replace("\t", "\t")
     code = re.sub(" ( )+", "", code)
     code = re.sub("s(\d+)", "s_{\g<1>}", code)
     if markdown:
-        markdown += "\n"
-    markdown += code
+        markdown += "\n\n"
+    markdown += f"$$\n{code}\n$$"
     st.code(markdown, language="latex")
     return code, markdown
 
@@ -128,7 +126,7 @@ def write_system_solution(matrix:list[list[str]], num_stats:int, solution_introd
     markdown = solution_introduction
     if markdown:
         markdown += "\n\n"
-    latex_code = "$$\\begin{cases}\n"
+    latex_code = "\\begin{cases}\n"
     for i, row in enumerate(converted):
         dependent, equations = row["dependent"], row["equations"]
         latex_code += dependent[0] + "="
@@ -136,8 +134,8 @@ def write_system_solution(matrix:list[list[str]], num_stats:int, solution_introd
         latex_code += write_equation(equations["mixed"], "m", True)
         latex_code += write_equation(equations["stats"], "1", True)
         latex_code += ("\\\\" if i < num_stats - 1 else "") + "\n"
-    latex_code += "\\end{cases}$$"
-    markdown += latex_code
+    latex_code += "\\end{cases}"
+    markdown += f"$$\n{latex_code}\n$$"
     st.code(markdown, language="latex")
     return latex_code, markdown
 
@@ -186,7 +184,7 @@ def write_system_verification(matrix:list[list[str]], num_stats:int, verificatio
     for i, row in enumerate(converted):
         latex_code += write_verification_body(row)
     latex_code += "\\end{array}"
-    markdown += f"$${latex_code}$$"
+    markdown += f"$$\n{latex_code}\n$$"
     st.code(markdown, language="latex")
     return latex_code, markdown
 
@@ -220,12 +218,11 @@ if st.button("gerar codigo"):
         code, markdown = write_extended_matrix_markdown(extended_matrix, extended_matrix_introduction)
         final_markdown = markdown
         if extended_matrix_visualization:
-            code = code.replace("$$", "")
             st.latex(code)
     reduced_matrix = None
     with st.expander("Sage Code"):
         reduced_matrix, markdown = write_sage_steps(extended_matrix, num_stats, extended_sage_code_introduction, False)
-        final_markdown += "\n" + markdown
+        final_markdown += "\n\n" + markdown
 
     with st.expander("System Solution"):
         code, markdown = write_system_solution(reduced_matrix, num_stats, solution_introduction)
