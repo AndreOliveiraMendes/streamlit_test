@@ -130,8 +130,8 @@ def write_system_solution(matrix:list[list[str]], num_stats:int, solution_introd
         markdown += "\n\n"
     latex_code = "$$\\begin{cases}\n"
     for i, row in enumerate(converted):
-        depedent, equations = row["depedent"], row["equations"]
-        latex_code += depedent[0] + "="
+        dependent, equations = row["dependent"], row["equations"]
+        latex_code += dependent[0] + "="
         latex_code += write_equation(equations["pure"], "p")
         latex_code += write_equation(equations["mixed"], "m", True)
         latex_code += write_equation(equations["stats"], "1", True)
@@ -168,8 +168,8 @@ def write_value(val):
     return sign + value
 
 def write_verification_body(row):
-    depedent, equations = row["depedent"], row["equations"]
-    latex_code = f"{depedent[0]}&"
+    dependent, equations = row["dependent"], row["equations"]
+    latex_code = f"{dependent[0]}&"
     aux = [write_value(var[1]) for var in equations['pure'] + equations['mixed'] + equations['stats']]
     latex_code += '&'.join(aux)
     latex_code += "\\\\\\hline\n"

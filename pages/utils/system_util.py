@@ -259,7 +259,7 @@ def convert_matrix(matrix:list[list[str]], num_stats:int, include_zero: bool = F
     head = get_matrix_head(num_stats)
     for i in range(num_stats):
         row = {}
-        depedent, _ = get_variable(matrix[i][i], head[i])
+        dependent, _ = get_variable(matrix[i][i], head[i])
         equations = {"pure":[], "mixed":[], "stats":[]}
         for j in range(num_stats, total):
             free, kind = get_variable(matrix[i][j], head[j], True)
@@ -267,7 +267,7 @@ def convert_matrix(matrix:list[list[str]], num_stats:int, include_zero: bool = F
                 free[1][0] *= -1
             if free[1][0] != 0 or include_zero:
                 equations[kind].append(free)
-        row["depedent"] = depedent
+        row["dependent"] = dependent
         row["equations"] = equations
         converted.append(row)
     return converted
