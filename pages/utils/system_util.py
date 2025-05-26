@@ -197,3 +197,77 @@ def apply_row_elimination(matrix: list[list[int]], i: int, j: int, steps: list[S
     for k in range(matrix_width):
         matrix[j][k] -= factor * matrix[i][k]
     steps.append(("subtract", i, j, factor))
+
+def get_variable(value:str, var:str, remove_multiplier: bool = False) -> list[list, str]:
+    """
+    obtem informações de uma variavel dados seu valor e simbolos e expressoes
+
+    Parâmetros:
+
+    - value (str): o valor correspondente, como uma string
+    - var (str): o nome simbolico da variavel
+    - remove_multiplier (bool): se o nome simbolico de ou não conter o multiplicador correspondente (em caso de p e m)
+
+    Retorna:
+
+    - list[list, str]: uma lista contendo o simbolo da viriavel e seu valor como uma lista onde o primeiro e segundo elementos são respectivamente numerador e denominador em formato de string
+    """
+    kind = "pure" if "p" in var else ("mixed" if "m" in var else "stats")
+    if remove_multiplier:
+        var = var.replace("p", "").replace("m", "")
+    parts = list(value.split("/"))
+    num, den = 0, 0
+    if len(parts) == 2:
+        num, den = map(int, parts)
+    else:
+        num, den = int(parts[0]), 1  
+    return [var, [num, den]], kind
+
+def get_matrix_head(num_stats:int) -> list[str]:
+    """
+    constroi o cabechalho da matrix
+
+    Parâmetros:
+
+    - num_stas (int): o numero de atributos
+
+    Returns:
+
+    - list[str]: uma lista de strings.
+    """
+    return [f"mt_{{{i + 1},{j + 1}}}" for i, j in combinations(range(num_stats), 2)] \
+        + [f"pt_{{{i + 1}}}" for i in range(num_stats)] \
+        + [f"s_{{{i + 1}}}" for i in range(num_stats)]
+
+def convert_matrix(matrix:list[list[str]], num_stats:int, include_zero: bool = False) -> list[dict]:
+    """
+    efetua a conversão de uma matrix em uma lista de dicionario numa fuma de variavel depedentes e variavels indepedents e atributos
+    se include_zero for setado como verdadeiro a função tambem passara a exibir variaveis livres/atributos com valor nulo
+
+    Parâmetros:
+
+    - matrix (list[list[str]]): a matrix a ser convertida
+    - num_stats (int): o numero de atributos
+    - include_zero (bool): adiciona elementos mesmo que seus valores sejam 0
+
+    Retorna:
+
+    - list[dict]: um dicionario contendo as variavel depedente e indepededentes de cada linha da matrix, bem como os atributos.
+    """
+    converted = []
+    total = len(matrix[0])
+    head = get_matrix_head(num_stats)
+    for i in range(num_stats):
+        row = {}
+        dependent, _ = get_variable(matrix[i][i], head[i])
+        equations = {"pure":[], "mixed":[], "stats":[]}
+        for j in range(num_stats, total):
+            free, kind = get_variable(matrix[i][j], head[j], True)
+            if kind in ["pure", "mixed"]:
+                free[1][0] *= -1
+            if free[1][0] != 0 or include_zero:
+                equations[kind].append(free)
+        row["dependent"] = dependent
+        row["equations"] = equations
+        converted.append(row)
+    return converted
