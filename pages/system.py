@@ -141,13 +141,54 @@ def write_system_solution(matrix:list[list[str]], num_stats:int, solution_introd
     st.code(markdown, language="latex")
     return latex_code, markdown
 
+def get_multiplier(var):
+    if 't' in var and ',' in var:
+        return 'm'
+    elif 't' in var:
+        return 'p'
+    else:
+        return ''
+
+def write_verification_head(converted):
+    latex = "."
+    aux = [get_multiplier(var[0]) + var[0] for var in converted[0]['equations']['pure'] + converted[0]['equations']['mixed'] + converted[0]['equations']['stats']]
+    latex += '&' + '&'.join(aux)
+    return latex
+
+def write_value(val):
+    sign = ''
+    value = ''
+    if val[0] < 0:
+        val[0] *= -1
+        sign = '-'
+    if val[1] == 1:
+        value = str(val[0])
+    else:
+        value = f"\\frac{{{val[0]}}}{{{val[1]}}}"
+    return sign + value
+
+def write_verification_body(row):
+    depedent, equations = row["depedent"], row["equations"]
+    latex_code = f"{depedent[0]}&"
+    aux = [write_value(var[1]) for var in equations['pure'] + equations['mixed'] + equations['stats']]
+    latex_code += '&'.join(aux)
+    latex_code += "\\\\\\hline\n"
+    return latex_code
+
 def write_system_verification(matrix:list[list[str]], num_stats:int, verification_introduction:str = "") -> str:
     converted = convert_matrix(matrix, num_stats, True)
     markdown = verification_introduction
     if markdown:
         markdown += "\n\n"
-    head = ''.join(['c'] + ['c']*sum(len(eq) for eq in converted[0]))
-    latex_code = f"\\left\\begin{{array}}{{{head}}}\n"
+    head = '|'.join(['c'] + ['c']*sum(len(eq) for eq in converted[0]['equations'].values()))
+    latex_code = f"\\begin{{array}}{{|{head}|}}\\hline\n"
+    latex_code += write_verification_head(converted) + "\\\\\\hline\n"
+    for i, row in enumerate(converted):
+        latex_code += write_verification_body(row)
+    latex_code += "\\end{array}"
+    markdown += f"$${latex_code}$$"
+    st.code(markdown, language="latex")
+    return latex_code, markdown
 
 st.title("System")
 
@@ -168,9 +209,10 @@ num_stats = st.number_input("Number of Stats", min_value=2, max_value=10, step=1
 extended_matrix_introduction = st.text_input("Extended Matrix Introduction", value="the extended matrix is given by:", help="texto de apresentação da matriz estendida.")
 extended_matrix_visualization = st.checkbox("visualizar resultado final?",key=0)
 extended_sage_code_introduction = st.text_input("Sage Code Introduction", value="the sage code is given by:", help="texto de apresentação do codigo sage.")
-solution_introduction = st.text_input("solution inntroduction", value="the solution is given by:", help="texto de apresentação da solução do sistema")
+solution_introduction = st.text_input("solution introduction", value="the solution is given by:", help="texto de apresentação da solução do sistema")
 solution_visualization = st.checkbox("visualizar resultado final?",key=1)
 verification_introduction = st.text_input("verification introduction", value="you can verify the solution using the following things", help="texto de apresentação da verificação")
+verification_visualization = st.checkbox("visualizar a verificação", key=2)
 if st.button("gerar codigo"):
     extended_matrix = generate_extended_matrix(num_stats)
     final_markdown = ""
@@ -193,7 +235,10 @@ if st.button("gerar codigo"):
             st.latex(code)
     
     with st.expander("verification"):
-        write_system_verification(reduced_matrix, num_stats, verification_introduction)
+        code, markdown = write_system_verification(reduced_matrix, num_stats, verification_introduction)
+        final_markdown += "\n\n" + markdown
+        if verification_visualization:
+            st.latex(code)
 
     with st.expander("final markdown code"):
         st.code(final_markdown, language="markdown")
