@@ -219,6 +219,7 @@ if st.button("gerar codigo"):
         final_markdown = markdown
         if extended_matrix_visualization:
             st.latex(code)
+        st.download_button("download the latex code", code, file_name="extended.tex", key=3)
     reduced_matrix = None
     with st.expander("Sage Code"):
         reduced_matrix, markdown = write_sage_steps(extended_matrix, num_stats, extended_sage_code_introduction, False)
@@ -230,12 +231,15 @@ if st.button("gerar codigo"):
         if solution_visualization:
             code = code.replace("$$", "")
             st.latex(code)
+        st.download_button("download the latex code", code, file_name="solution.tex", key=4)
     
     with st.expander("verification"):
         code, markdown = write_system_verification(reduced_matrix, num_stats, verification_introduction)
         final_markdown += "\n\n" + markdown
         if verification_visualization:
             st.latex(code)
+        st.download_button("download the latex code", code, file_name="verification.tex", key=5)
 
     with st.expander("final markdown code"):
         st.code(final_markdown, language="markdown")
+        st.download_button("download the final markdown code", final_markdown, file_name="final_markdow.md", key=6)
