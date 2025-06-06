@@ -23,7 +23,7 @@ jobs:
         run: pip install pdoc
 
       - name: Instalar streamlit
-        run: pip install streamlit
+        run: pip install -r requirements.txt
 
       - name: Gerar doc da branch atual
         run: |
