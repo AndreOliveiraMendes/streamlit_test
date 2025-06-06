@@ -1,5 +1,6 @@
 import streamlit as st, textwrap, re
 from pages.utils.system_util import generate_extended_matrix, generate_auxiliar_matrix, decode_step, apply_row_elimination, convert_matrix
+from pages.utils.sidebar import global_sidebar
 from math import gcd, lcm
 
 def write_extended_matrix_markdown(matrix:list[list[str]], extended_matrix_introduction: str = "") -> tuple[str, str]:
@@ -187,6 +188,8 @@ def write_system_verification(matrix:list[list[str]], num_stats:int, verificatio
     markdown += f"$$\n{latex_code}\n$$"
     st.code(markdown, language="latex")
     return latex_code, markdown
+
+global_sidebar("system")
 
 st.title("System")
 

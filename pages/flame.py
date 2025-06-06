@@ -1,6 +1,7 @@
 import streamlit as st
 from itertools import combinations
 from pages.utils.flame_util import get_tiers, count_groups_used, get_max_theorical_value, calcular_ps_ms_por_nivel
+from pages.utils.sidebar import global_sidebar
 
 MAX_LEVEL = 300
 DEFAULT_PURE_SCALE = 12
@@ -26,10 +27,9 @@ def atualizar_por_nivel() -> None:
 
 st.title("Maplestory Helper - Flame Calculator")
 
-st.sidebar.title("Links de Referência e Utilitarios")
 
+global_sidebar("Links de Referência e Utilitarios")
 st.sidebar.markdown("[🧠 Ajuda (Wiki)](https://maplestorywiki.net/w/Bonus_Stats)")
-
 st.sidebar.markdown("[📊 Calculadora de Bonus Stats](https://www.whackybeanz.com/calc/equips/setup)")
 
 with st.expander("Como funciona"):
